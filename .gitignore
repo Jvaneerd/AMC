@@ -22,3 +22,7 @@
 hs_err_pid*
 /Assignment1/nbproject/private/
 /Assignment1/build/
+/Assignment1/nbbuild/
+/Assignment1/dist/
+/Assignment1/nbdist/
+/Assignment1/.nb-gradle/
