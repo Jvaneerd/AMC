@@ -9,19 +9,19 @@ package model.lts;
  *
  * @author johri
  */
-public class edge {
-    private node source;
-    private node dest;
-    private String label;
+public class Edge {
+    private final Node source;
+    private final Node dest;
+    private final String label;
     
-    public edge(node src, node dest, String lbl) {
+    public Edge(Node src, Node dest, String lbl) {
         this.source = src;
         this.dest = dest;
         this.label = lbl;
     }
     
-    public node getSource() { return this.source; }
-    public node getDest() { return this.dest; }
+    public Node getSource() { return this.source; }
+    public Node getDest() { return this.dest; }
     public String getLabel() { return this.label; }
     
     @Override

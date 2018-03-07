@@ -11,19 +11,24 @@ import java.util.List;
  *
  * @author johri
  */
-public class node {
-    private List<edge> successors;
-    private List<edge> predecessors;
-    private int state;
+public class Node {
+    private final List<Edge> successors;
+    private final List<Edge> predecessors;
+    private final int state;
     
-    public node(int state) { 
+    public Node(int state) { 
         this.state = state;
         this.successors = new ArrayList<>();
         this.predecessors = new ArrayList<>();
     }
     
-    public void addSuccessor(edge e) { successors.add(e); };
-    public void addPredecessor(edge e) { predecessors.add(e); };
+    public void addSuccessor(Edge e) { successors.add(e); };
+    public void addPredecessor(Edge e) { predecessors.add(e); };
+
+    public List<Edge> getSuccessors() {
+        return successors;
+    }
+    
     public int getState() { return state; };
     @Override
     public String toString() {
