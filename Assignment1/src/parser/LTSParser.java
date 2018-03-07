@@ -38,7 +38,8 @@ public class LTSParser {
             int edgeDest = Integer.parseInt(edgeInfo[2]);
             node src = l.getNode(edgeSrc);
             node dest = l.getNode(edgeDest);
-            src.addEdge(new edge(src, dest, edgeLbl));
+            src.addPredecessor(new edge(dest, src, edgeLbl));
+            src.addSuccessor(new edge(src, dest, edgeLbl));
         }
         
         return l;
