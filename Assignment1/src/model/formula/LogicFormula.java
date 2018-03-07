@@ -30,6 +30,10 @@ public class LogicFormula extends Formula {
         return rhs;
     }
 
+    public LogicOperator getOperator() {
+        return operator;
+    }
+
     @Override
     public String toString() {
         if (operator == LogicOperator.AND) {

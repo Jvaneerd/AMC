@@ -92,7 +92,7 @@ public class FormulaParser {
         return new FalseLiteral();
     }
 
-    private Formula parseRecursionVariable() throws ParseException {
+    private RecursionVariable parseRecursionVariable() throws ParseException {
         String name = formula.substring(parseIndex, parseIndex + 1);
         parseIndex++;
         return new RecursionVariable(name);
@@ -134,7 +134,7 @@ public class FormulaParser {
         expect("mu ");
         skipWhitespace();
 
-        Formula variable;
+        RecursionVariable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
             variable = parseRecursionVariable();
@@ -152,7 +152,7 @@ public class FormulaParser {
         expect("nu ");
         skipWhitespace();
 
-        Formula variable;
+        RecursionVariable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
             variable = parseRecursionVariable();

@@ -11,16 +11,16 @@ package model.formula;
  */
 public class FixpointFormula extends Formula {
 
-    protected final Formula variable;
+    protected final RecursionVariable variable;
     protected final Formula formula;
 
-    public FixpointFormula(FormulaType type, Formula variable, Formula formula) {
+    public FixpointFormula(FormulaType type, RecursionVariable variable, Formula formula) {
         super(type);
         this.variable = variable;
         this.formula = formula;
     }
 
-    public Formula getVariable() {
+    public RecursionVariable getVariable() {
         return variable;
     }
 

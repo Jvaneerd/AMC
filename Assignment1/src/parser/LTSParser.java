@@ -7,8 +7,8 @@ package parser;
 
 import java.util.List;
 import model.lts.LTS;
-import model.lts.edge;
-import model.lts.node;
+import model.lts.Edge;
+import model.lts.Node;
 
 /**
  *
@@ -36,9 +36,9 @@ public class LTSParser {
             int edgeSrc = Integer.parseInt(edgeInfo[0]);
             String edgeLbl = edgeInfo[1].replaceAll("\"", "");
             int edgeDest = Integer.parseInt(edgeInfo[2]);
-            node src = l.getNode(edgeSrc);
-            node dest = l.getNode(edgeDest);
-            src.addEdge(new edge(src, dest, edgeLbl));
+            Node src = l.getNode(edgeSrc);
+            Node dest = l.getNode(edgeDest);
+            src.addEdge(new Edge(src, dest, edgeLbl));
         }
         
         return l;

@@ -6,25 +6,27 @@
 package model.lts;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author johri
  */
 public class LTS {
-    private final ArrayList<node> nodes;
-    private final node initial;
+    private final List<Node> nodes;
+    private final Node initial;
     
     public LTS(int n_nodes, int initial) {
         nodes = new ArrayList<>();
         for(int i = 0; i < n_nodes; i++) {
-            nodes.add(new node(i));
+            nodes.add(new Node(i));
         }
         this.initial = nodes.get(initial);
     }
     
-    public node getNode(int state) { return nodes.get(state); };
-    public node getInitial() { return initial; };
+    public Node getNode(int state) { return nodes.get(state); }
+    public List<Node> getNodes() { return nodes; }
+    public Node getInitial() { return initial; }
     
     @Override
     public String toString() {
