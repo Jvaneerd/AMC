@@ -50,7 +50,9 @@ public abstract class BasicAlgorithm {
     }
 
     protected abstract void initializeVariables();
+
     protected abstract Set<Node> checkMuFormula(LTS lts, MuFormula formula);
+
     protected abstract Set<Node> checkNuFormula(LTS lts, NuFormula formula);
 
     private Set<Node> checkLogicFormula(LTS lts, LogicFormula formula) {
@@ -70,8 +72,8 @@ public abstract class BasicAlgorithm {
 
         lts.getNodes().forEach((n) -> {
             boolean addNode = true;
-            for (Edge e : n.getEdges()) {
-                addNode = addNode && nodesFormulaHoldsFor.contains(e.getDest());
+            for (Edge e : n.getSuccessors()) {
+                addNode = addNode && nodesFormulaHoldsFor.contains(e.getDest()) && e.getLabel().equals(formula.getAction());
             }
             if (addNode) {
                 nodes.add(n);
@@ -85,8 +87,8 @@ public abstract class BasicAlgorithm {
         Set<Node> nodes = new HashSet<>();
 
         lts.getNodes().forEach((n) -> {
-            for (Edge e : n.getEdges()) {
-                if (nodesFormulaHoldsFor.contains(e.getDest())) {
+            for (Edge e : n.getSuccessors()) {
+                if (nodesFormulaHoldsFor.contains(e.getDest()) && e.getLabel().equals(formula.getAction())) {
                     nodes.add(n);
                     break;
                 }

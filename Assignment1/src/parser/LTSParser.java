@@ -15,22 +15,25 @@ import model.lts.Node;
  * @author johri
  */
 public class LTSParser {
+
     private List<String> ltsAsStrings;
     private int edges;
-    
+
     public LTS parse(List<String> ltsAsStrings) throws ParseException {
         this.ltsAsStrings = ltsAsStrings;
         return parseLts();
     }
-    
+
     private LTS parseLts() throws ParseException {
         String ltsDescription = ltsAsStrings.get(0);
         String[] descTokens = ltsDescription.substring(ltsDescription.indexOf('(') + 1, ltsDescription.indexOf(')')).split(",");
-        if(descTokens.length != 3) throw new ParseException("Incorrect LTS description: " + ltsDescription);
+        if (descTokens.length != 3) {
+            throw new ParseException("Incorrect LTS description: " + ltsDescription);
+        }
         LTS l = new LTS(Integer.parseInt(descTokens[2]), Integer.parseInt(descTokens[0]));
         edges = Integer.parseInt(descTokens[1]);
-        
-        for(int e = 1; e <= edges; e++) {
+
+        for (int e = 1; e <= edges; e++) {
             String edge = ltsAsStrings.get(e);
             String[] edgeInfo = edge.substring(edge.indexOf('(') + 1, edge.indexOf(')')).split(",");
             int edgeSrc = Integer.parseInt(edgeInfo[0]);
@@ -38,9 +41,10 @@ public class LTSParser {
             int edgeDest = Integer.parseInt(edgeInfo[2]);
             Node src = l.getNode(edgeSrc);
             Node dest = l.getNode(edgeDest);
-            src.addEdge(new Edge(src, dest, edgeLbl));
+            src.addSuccessor(new Edge(src, dest, edgeLbl));
+            src.addPredecessor(new Edge(dest, src, edgeLbl));
         }
-        
+
         return l;
     }
 }
