@@ -5,6 +5,10 @@
  */
 package model.formula;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  *
  * @author s163360
@@ -32,6 +36,11 @@ public class LogicFormula extends Formula {
 
     public LogicOperator getOperator() {
         return operator;
+    }
+
+    @Override
+    public Set<String> getRecursionVariables() {
+        return Stream.concat(lhs.getRecursionVariables().stream(), rhs.getRecursionVariables().stream()).collect(Collectors.toSet());
     }
 
     @Override

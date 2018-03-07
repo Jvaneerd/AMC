@@ -5,6 +5,8 @@
  */
 package model.formula;
 
+import java.util.Set;
+
 /**
  *
  * @author s163360
@@ -28,4 +30,8 @@ public class ModalFormula extends Formula {
         return formula;
     }
 
+    @Override
+    public Set<String> getRecursionVariables() {
+        return formula.getRecursionVariables();
+    }
 }

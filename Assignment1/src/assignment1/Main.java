@@ -5,13 +5,20 @@
  */
 package assignment1;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import model.formula.Formula;
 import model.lts.LTS;
+import model.lts.Node;
+import modelChecker.NaiveAlgorithm;
 import parser.FormulaParser;
 import parser.LTSParser;
 import parser.ParseException;
@@ -25,28 +32,51 @@ public class Main {
     /**
      * @param args the command line arguments
      * @throws parser.ParseException
+     * @throws java.io.IOException
      */
     public static void main(String[] args) throws ParseException, IOException {
         //TODO: proper arguments handling
-        List<String> ltsList;
-        long startTime = System.currentTimeMillis();
-        ltsList = Files.lines(new File(args[0]).toPath()).collect(Collectors.toList());
-        long endTime = System.currentTimeMillis();
+        String ltsPath = "tests/philosophers/dining_2.aut";
+        String formulaPath = "tests/philosophers/plato_infinitely_often_can_eat.mcf";
 
-        System.out.println("Reading file took " + (endTime - startTime) + " milliseconds");
-        
+        List<String> ltsList = fileToList(ltsPath);
+        String formula = fileToString(formulaPath);
+
         FormulaParser fp = new FormulaParser();
         LTSParser lp = new LTSParser();
 
-        String s = "nu X. (([i]X && ([plato]X && [others]X )) && mu Y. ([i]Y && (<plato>true || <others>true)) )";
-
-        Formula f = fp.parse(s);
-        startTime = System.currentTimeMillis();
+        Formula f = fp.parse(formula);
         LTS l = lp.parse(ltsList);
-        endTime = System.currentTimeMillis();
-        System.out.println("Building LTS took " + (endTime - startTime) + " milliseconds");
-        System.out.println(f.toString());
-//        System.out.println(l.toString());
+        System.out.println("Formula:  " + f.toString());
+        System.out.println(l.toString());
+
+        NaiveAlgorithm naiveAlgorithm = new NaiveAlgorithm();
+        Set<Node> nodes = naiveAlgorithm.checkFormula(l, f);
+        
+        System.out.println("The formula is valid in the following states:");
+        new TreeSet<>(nodes).forEach((n) -> {
+            System.out.print(n.getState() + ", ");
+        });
+    }
+
+    private static String fileToString(String filePath) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        } catch (IOException e) {
+            throw new IOException("Error while trying to read: " + filePath, e);
+        }
+        return contentBuilder.toString();
+    }
+
+    private static List<String> fileToList(String filePath) throws IOException {
+        List<String> fileList = new ArrayList<>();
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            fileList = stream.collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new IOException("Error while trying to read: " + filePath, e);
+        }
+        return fileList;
     }
 
 }

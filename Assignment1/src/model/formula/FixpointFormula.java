@@ -5,6 +5,8 @@
  */
 package model.formula;
 
+import java.util.Set;
+
 /**
  *
  * @author s163360
@@ -26,6 +28,11 @@ public class FixpointFormula extends Formula {
 
     public Formula getFormula() {
         return formula;
+    }
+
+    @Override
+    public Set<String> getRecursionVariables() {
+           return formula.getRecursionVariables();
     }
 
 }

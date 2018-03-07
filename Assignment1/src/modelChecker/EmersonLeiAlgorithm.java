@@ -20,22 +20,24 @@ import model.lts.Node;
 public class EmersonLeiAlgorithm extends BasicAlgorithm {
 
     @Override
-    public Set<Node> checkFormula(LTS lts, Formula formula) {
+    protected Set<Node> recursiveCheckFormula(LTS lts, Formula formula) {
         switch (formula.getType()) {
             case MU:
                 return checkMuFormula(lts, (MuFormula) formula);
             case NU:
                 return checkNuFormula(lts, (NuFormula) formula);
             default:
-                return super.checkFormula(lts, formula);
+                return super.recursiveCheckFormula(lts, formula);
         }
     }
 
     @Override
-    protected void initializeVariables() {
+    protected void initializeVariables(Formula formula) {
         variableAssignments = new HashMap<>();
-        // Assign initial values to all variables.
-        // We need a method first to retrieve all variables from the formula
+        formula.getRecursionVariables().forEach((var) -> {
+            //TODO: set initial values for each variable
+            variableAssignments.put(var, null);
+        });
     }
 
     @Override

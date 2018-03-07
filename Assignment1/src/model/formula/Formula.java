@@ -5,6 +5,8 @@
  */
 package model.formula;
 
+import java.util.Set;
+
 /**
  *
  * @author s163360
@@ -20,5 +22,7 @@ public abstract class Formula {
     public FormulaType getType() {
         return this.type;
     }
+    
+    public abstract Set<String> getRecursionVariables();
 
 }

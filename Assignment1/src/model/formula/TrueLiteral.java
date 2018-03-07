@@ -5,6 +5,9 @@
  */
 package model.formula;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author s163360
@@ -18,6 +21,11 @@ public class TrueLiteral extends Formula {
     @Override
     public String toString() {
         return "true";
+    }
+
+    @Override
+    public Set<String> getRecursionVariables() {
+        return new HashSet<>();
     }
 
 }
