@@ -12,21 +12,24 @@ import java.util.List;
  * @author johri
  */
 public class node {
-    private List<edge> edges;
+    private List<edge> successors;
+    private List<edge> predecessors;
     private int state;
     
     public node(int state) { 
         this.state = state;
-        this.edges = new ArrayList<>();
+        this.successors = new ArrayList<>();
+        this.predecessors = new ArrayList<>();
     }
     
-    public void addEdge(edge e) { edges.add(e); };
+    public void addSuccessor(edge e) { successors.add(e); };
+    public void addPredecessor(edge e) { predecessors.add(e); };
     public int getState() { return state; };
     @Override
     public String toString() {
-        String s = String.format("Node %d, transitions: %d", state, edges.size());
-        for(int e = 0; e < edges.size(); e++) {
-            s = String.format("%s\n%s", s, edges.get(e).toString());
+        String s = String.format("Node %d, transitions: %d", state, successors.size());
+        for(int e = 0; e < successors.size(); e++) {
+            s = String.format("%s\n%s", s, successors.get(e).toString());
         }
         return s;
     }
