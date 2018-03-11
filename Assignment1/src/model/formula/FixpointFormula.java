@@ -5,7 +5,10 @@
  */
 package model.formula;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -31,8 +34,9 @@ public class FixpointFormula extends Formula {
     }
 
     @Override
-    public Set<String> getRecursionVariables() {
-           return formula.getRecursionVariables();
+    public Set<RecursionVariable> getRecursionVariables() {
+        Set<RecursionVariable> set = new HashSet<>();
+        set.add(this.variable);
+        return Stream.concat(set.stream(), formula.getRecursionVariables().stream()).collect(Collectors.toSet());
     }
-
 }

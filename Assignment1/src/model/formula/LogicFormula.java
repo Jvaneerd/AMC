@@ -39,7 +39,7 @@ public class LogicFormula extends Formula {
     }
 
     @Override
-    public Set<String> getRecursionVariables() {
+    public Set<RecursionVariable> getRecursionVariables() {
         return Stream.concat(lhs.getRecursionVariables().stream(), rhs.getRecursionVariables().stream()).collect(Collectors.toSet());
     }
 

@@ -24,7 +24,7 @@ public class TrueLiteral extends Formula {
     }
 
     @Override
-    public Set<String> getRecursionVariables() {
+    public Set<RecursionVariable> getRecursionVariables() {
         return new HashSet<>();
     }
 

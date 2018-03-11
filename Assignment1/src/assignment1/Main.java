@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import model.formula.Formula;
 import model.lts.LTS;
 import model.lts.Node;
+import modelChecker.EmersonLeiAlgorithm;
 import modelChecker.NaiveAlgorithm;
 import parser.FormulaParser;
 import parser.LTSParser;
@@ -48,15 +49,31 @@ public class Main {
         Formula f = fp.parse(formula);
         LTS l = lp.parse(ltsList);
         System.out.println("Formula:  " + f.toString());
-        System.out.println(l.toString());
+        //System.out.println(l.toString());
 
         NaiveAlgorithm naiveAlgorithm = new NaiveAlgorithm();
+        long startTime = System.currentTimeMillis();
         Set<Node> nodes = naiveAlgorithm.checkFormula(l, f);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Naive algorithm took " + (endTime - startTime) + " milliseconds");
         
-        System.out.println("The formula is valid in the following states:");
-        new TreeSet<>(nodes).forEach((n) -> {
-            System.out.print(n.getState() + ", ");
-        });
+//        System.out.println("The formula is valid in the following states (naive):");
+//        new TreeSet<>(nodes).forEach((n) -> {
+//            System.out.print(n.getState() + ", ");
+//        });
+        
+        EmersonLeiAlgorithm elAlgo = new EmersonLeiAlgorithm();
+        startTime = System.currentTimeMillis();
+        Set<Node> elNodes = elAlgo.checkFormula(l, f);
+        endTime = System.currentTimeMillis();
+        
+        System.out.println("\nEmerson-Lei algorithm took " + (endTime - startTime) + " milliseconds");
+        if(elNodes.equals(nodes)) System.out.println("Sets are equal!");
+        else System.out.println("Sets are not equal!");
+//        System.out.println("The formula is valid in the following states (Emerson-Lei):");
+//        new TreeSet<>(elNodes).forEach((n) -> {
+//            System.out.print(n.getState() + ", ");
+//        });
     }
 
     private static String fileToString(String filePath) throws IOException {

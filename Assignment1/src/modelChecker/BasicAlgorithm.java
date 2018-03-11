@@ -30,7 +30,7 @@ public abstract class BasicAlgorithm {
     protected Map<String, Set<Node>> variableAssignments;
 
     public Set<Node> checkFormula(LTS lts, Formula formula) {
-        initializeVariables(formula);
+        initializeVariables(lts, formula);
         return recursiveCheckFormula(lts, formula);
     }
 
@@ -54,7 +54,7 @@ public abstract class BasicAlgorithm {
         }
     }
 
-    protected abstract void initializeVariables(Formula formula);
+    protected abstract void initializeVariables(LTS lts, Formula formula);
 
     protected abstract Set<Node> checkMuFormula(LTS lts, MuFormula formula);
 

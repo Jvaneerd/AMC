@@ -23,6 +23,6 @@ public abstract class Formula {
         return this.type;
     }
     
-    public abstract Set<String> getRecursionVariables();
+    public abstract Set<RecursionVariable> getRecursionVariables();
 
 }

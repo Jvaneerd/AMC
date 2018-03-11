@@ -15,14 +15,21 @@ import java.util.Set;
 public class RecursionVariable extends Formula {
 
     private final String name;
+    private FormulaType scope;
 
-    public RecursionVariable(String name) {
+    public RecursionVariable(String name, FormulaType scope) {
         super(FormulaType.VARIABLE);
         this.name = name;
+        if(scope == null) this.scope = FormulaType.FREE;
+        else this.scope = scope;
     }
-
+    
     public String getName() {
         return name;
+    }
+    
+    public FormulaType getScope() {
+        return scope;
     }
 
     @Override
@@ -31,10 +38,8 @@ public class RecursionVariable extends Formula {
     }
 
     @Override
-    public Set<String> getRecursionVariables() {
-        Set<String> set = new HashSet<>();
-        set.add(name);
-        return set;
+    public Set<RecursionVariable> getRecursionVariables() {
+        return new HashSet<>();
     }
 
 }

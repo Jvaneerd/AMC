@@ -9,6 +9,7 @@ import model.formula.BoxFormula;
 import model.formula.DiamondFormula;
 import model.formula.FalseLiteral;
 import model.formula.Formula;
+import model.formula.FormulaType;
 import model.formula.LogicFormula;
 import model.formula.LogicOperator;
 import model.formula.MuFormula;
@@ -24,10 +25,12 @@ public class FormulaParser {
 
     private String formula;
     private int parseIndex;
+    private FormulaType scope;
 
     public Formula parse(String formula) throws ParseException {
         this.formula = formula;
         this.parseIndex = 0;
+        this.scope = null;
 
         Formula f = parseFormula();
 
@@ -95,7 +98,7 @@ public class FormulaParser {
     private RecursionVariable parseRecursionVariable() throws ParseException {
         String name = formula.substring(parseIndex, parseIndex + 1);
         parseIndex++;
-        return new RecursionVariable(name);
+        return new RecursionVariable(name, this.scope);
     }
 
     private Formula parseLogicFormula() throws ParseException {
@@ -137,14 +140,16 @@ public class FormulaParser {
         RecursionVariable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
+            this.scope = FormulaType.MU;
             variable = parseRecursionVariable();
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
         }
 
         expect(".");
-
+        
         Formula f = parseFormula();
+        this.scope = null;
         return new MuFormula(variable, f);
     }
 
@@ -155,6 +160,7 @@ public class FormulaParser {
         RecursionVariable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
+            this.scope = FormulaType.NU;
             variable = parseRecursionVariable();
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
@@ -162,7 +168,9 @@ public class FormulaParser {
 
         expect(".");
 
+        
         Formula f = parseFormula();
+        this.scope = null;
         return new NuFormula(variable, f);
     }
 

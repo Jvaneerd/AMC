@@ -31,7 +31,7 @@ public class ModalFormula extends Formula {
     }
 
     @Override
-    public Set<String> getRecursionVariables() {
+    public Set<RecursionVariable> getRecursionVariables() {
         return formula.getRecursionVariables();
     }
 }

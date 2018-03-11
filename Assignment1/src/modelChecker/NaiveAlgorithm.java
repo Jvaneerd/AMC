@@ -11,6 +11,7 @@ import java.util.Set;
 import model.formula.Formula;
 import model.formula.MuFormula;
 import model.formula.NuFormula;
+import model.formula.RecursionVariable;
 import model.lts.LTS;
 import model.lts.Node;
 
@@ -33,35 +34,35 @@ public class NaiveAlgorithm extends BasicAlgorithm {
     }
 
     @Override
-    protected void initializeVariables(Formula formula) {
+    protected void initializeVariables(LTS lts, Formula formula) {
         variableAssignments = new HashMap<>();
         formula.getRecursionVariables().forEach((var) -> {
-            variableAssignments.put(var, null);
+            variableAssignments.put(var.getName(), null);
         });
     }
 
     @Override
     protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
-        String var = formula.getVariable().getName();
-        variableAssignments.put(var, new HashSet<>());
+        RecursionVariable var = formula.getVariable();
+        variableAssignments.put(var.getName(), new HashSet<>());
 
         Set<Node> previousSolution = null;
-        while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var))) {
-            previousSolution = variableAssignments.put(var, recursiveCheckFormula(lts, formula.getFormula()));
+        while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var.getName()))) {
+            previousSolution = variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
         }
-        return variableAssignments.get(var);
+        return variableAssignments.get(var.getName());
     }
 
     @Override
     protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
-        String var = formula.getVariable().getName();
-        variableAssignments.put(var, new HashSet<>(lts.getNodes()));
+        RecursionVariable var = formula.getVariable();
+        variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
 
         Set<Node> previousSolution = null;
-        while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var))) {
-            previousSolution = variableAssignments.put(var, recursiveCheckFormula(lts, formula.getFormula()));
+        while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var.getName()))) {
+            previousSolution = variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
         }
-        return variableAssignments.get(var);
+        return variableAssignments.get(var.getName());
     }
 
 }
