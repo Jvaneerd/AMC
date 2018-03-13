@@ -5,6 +5,8 @@
  */
 package parser;
 
+import java.util.HashSet;
+import java.util.Set;
 import model.formula.BoxFormula;
 import model.formula.DiamondFormula;
 import model.formula.FalseLiteral;
@@ -14,8 +16,8 @@ import model.formula.LogicFormula;
 import model.formula.LogicOperator;
 import model.formula.MuFormula;
 import model.formula.NuFormula;
-import model.formula.RecursionVariable;
 import model.formula.TrueLiteral;
+import model.formula.Variable;
 
 /**
  *
@@ -25,14 +27,14 @@ public class FormulaParser {
 
     private String formula;
     private int parseIndex;
-    private FormulaType scope;
+    private Set<Variable> boundVariables;
 
     public Formula parse(String formula) throws ParseException {
         this.formula = formula;
         this.parseIndex = 0;
-        this.scope = null;
+        this.boundVariables = new HashSet<>();
 
-        Formula f = parseFormula();
+        Formula f = parseFormula(null);
 
         if (parseIndex != formula.length()) {
             throw new ParseException();
@@ -41,7 +43,7 @@ public class FormulaParser {
         }
     }
 
-    private Formula parseFormula() throws ParseException {
+    private Formula parseFormula(FormulaType scope) throws ParseException {
         skipWhitespace();
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
 
@@ -51,17 +53,17 @@ public class FormulaParser {
         } else if (currentChar.matches("f")) {
             f = parseFalseLiteral();
         } else if (currentChar.matches("[A-Z]")) {
-            f = parseRecursionVariable();
+            f = parseVariable();
         } else if (currentChar.matches("\\(")) {
-            f = parseLogicFormula();
+            f = parseLogicFormula(scope);
         } else if (currentChar.matches("m")) {
-            f = parseMuFormula();
+            f = parseMuFormula(scope);
         } else if (currentChar.matches("n")) {
-            f = parseNuFormula();
+            f = parseNuFormula(scope);
         } else if (currentChar.matches("\\<")) {
-            f = parseDiamondFormula();
+            f = parseDiamondFormula(scope);
         } else if (currentChar.matches("\\[")) {
-            f = parseBoxFormula();
+            f = parseBoxFormula(scope);
         } else {
             throw new ParseException("Cannot parse formula starting with: " + currentChar);
         }
@@ -95,16 +97,27 @@ public class FormulaParser {
         return new FalseLiteral();
     }
 
-    private RecursionVariable parseRecursionVariable() throws ParseException {
+    private Variable parseBoundVariable(FormulaType scope) throws ParseException {
         String name = formula.substring(parseIndex, parseIndex + 1);
         parseIndex++;
-        return new RecursionVariable(name, this.scope);
+        return new Variable(name, scope);
     }
 
-    private Formula parseLogicFormula() throws ParseException {
+    private Variable parseVariable() throws ParseException {
+        String name = formula.substring(parseIndex, parseIndex + 1);
+        parseIndex++;
+        for (Variable var : boundVariables) {
+            if (var.getName().equals(name)) {
+                return var;
+            }
+        }
+        return new Variable(name, FormulaType.FREE);
+    }
+
+    private Formula parseLogicFormula(FormulaType scope) throws ParseException {
         expect("(");
 
-        Formula lhs = parseFormula();
+        Formula lhs = parseFormula(scope);
 
         LogicOperator operator;
 
@@ -116,7 +129,7 @@ public class FormulaParser {
         }
         skipWhitespace();
 
-        Formula rhs = parseFormula();
+        Formula rhs = parseFormula(scope);
         expect(")");
 
         return new LogicFormula(operator, lhs, rhs);
@@ -133,48 +146,47 @@ public class FormulaParser {
         }
     }
 
-    private Formula parseMuFormula() throws ParseException {
+    private Formula parseMuFormula(FormulaType scope) throws ParseException {
         expect("mu ");
         skipWhitespace();
 
-        RecursionVariable variable;
+        Variable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
-            this.scope = FormulaType.MU;
-            variable = parseRecursionVariable();
+            variable = parseBoundVariable(FormulaType.MU);
+            boundVariables.add(variable);
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
         }
 
         expect(".");
-        
-        Formula f = parseFormula();
-        this.scope = null;
-        return new MuFormula(variable, f);
+
+        Formula f = parseFormula(FormulaType.MU);
+        boundVariables.remove(variable);
+        return new MuFormula(variable, f, scope);
     }
 
-    private Formula parseNuFormula() throws ParseException {
+    private Formula parseNuFormula(FormulaType scope) throws ParseException {
         expect("nu ");
         skipWhitespace();
 
-        RecursionVariable variable;
+        Variable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
-            this.scope = FormulaType.NU;
-            variable = parseRecursionVariable();
+            variable = parseBoundVariable(FormulaType.NU);
+            boundVariables.add(variable);
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
         }
 
         expect(".");
 
-        
-        Formula f = parseFormula();
-        this.scope = null;
-        return new NuFormula(variable, f);
+        Formula f = parseFormula(FormulaType.NU);
+        boundVariables.remove(variable);
+        return new NuFormula(variable, f, scope);
     }
 
-    private Formula parseDiamondFormula() throws ParseException {
+    private Formula parseDiamondFormula(FormulaType scope) throws ParseException {
         expect("<");
         skipWhitespace();
 
@@ -188,11 +200,11 @@ public class FormulaParser {
 
         expect(">");
 
-        Formula f = parseFormula();
+        Formula f = parseFormula(scope);
         return new DiamondFormula(action, f);
     }
 
-    private Formula parseBoxFormula() throws ParseException {
+    private Formula parseBoxFormula(FormulaType scope) throws ParseException {
         expect("[");
         skipWhitespace();
 
@@ -206,7 +218,7 @@ public class FormulaParser {
 
         expect("]");
 
-        Formula f = parseFormula();
+        Formula f = parseFormula(scope);
         return new BoxFormula(action, f);
     }
 

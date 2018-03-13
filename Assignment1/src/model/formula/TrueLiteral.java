@@ -24,7 +24,12 @@ public class TrueLiteral extends Formula {
     }
 
     @Override
-    public Set<RecursionVariable> getRecursionVariables() {
+    public Set<Variable> getVariables() {
+        return new HashSet<>();
+    }
+
+    @Override
+    protected Set<Variable> getOpenVariables() {
         return new HashSet<>();
     }
 

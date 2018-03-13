@@ -11,8 +11,8 @@ package model.formula;
  */
 public class MuFormula extends FixpointFormula {
 
-    public MuFormula(RecursionVariable variable, Formula formula) {
-        super(FormulaType.MU, variable, formula);
+    public MuFormula(Variable variable, Formula formula, FormulaType binder) {
+        super(FormulaType.MU, variable, formula, binder);
     }
 
     @Override

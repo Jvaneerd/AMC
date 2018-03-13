@@ -22,7 +22,8 @@ public abstract class Formula {
     public FormulaType getType() {
         return this.type;
     }
-    
-    public abstract Set<RecursionVariable> getRecursionVariables();
 
+    public abstract Set<Variable> getVariables();
+
+    protected abstract Set<Variable> getOpenVariables();
 }

@@ -16,16 +16,18 @@ import java.util.stream.Stream;
  */
 public class FixpointFormula extends Formula {
 
-    protected final RecursionVariable variable;
+    protected final Variable variable;
     protected final Formula formula;
+    private final FormulaType binder;
 
-    public FixpointFormula(FormulaType type, RecursionVariable variable, Formula formula) {
+    public FixpointFormula(FormulaType type, Variable variable, Formula formula, FormulaType binder) {
         super(type);
         this.variable = variable;
         this.formula = formula;
+        this.binder = binder;
     }
 
-    public RecursionVariable getVariable() {
+    public Variable getVariable() {
         return variable;
     }
 
@@ -33,10 +35,25 @@ public class FixpointFormula extends Formula {
         return formula;
     }
 
+    public FormulaType getBinder() {
+        return binder;
+    }
+
     @Override
-    public Set<RecursionVariable> getRecursionVariables() {
-        Set<RecursionVariable> set = new HashSet<>();
+    protected Set<Variable> getOpenVariables() {
+        Set<Variable> vars = formula.getOpenVariables();
+        vars.remove(this.variable);
+        return vars;
+    }
+
+    public boolean isOpen() {
+        return !getOpenVariables().isEmpty();
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        Set<Variable> set = new HashSet<>();
         set.add(this.variable);
-        return Stream.concat(set.stream(), formula.getRecursionVariables().stream()).collect(Collectors.toSet());
+        return Stream.concat(set.stream(), formula.getVariables().stream()).collect(Collectors.toSet());
     }
 }

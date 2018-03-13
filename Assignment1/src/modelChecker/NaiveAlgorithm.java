@@ -11,7 +11,7 @@ import java.util.Set;
 import model.formula.Formula;
 import model.formula.MuFormula;
 import model.formula.NuFormula;
-import model.formula.RecursionVariable;
+import model.formula.Variable;
 import model.lts.LTS;
 import model.lts.Node;
 
@@ -22,28 +22,16 @@ import model.lts.Node;
 public class NaiveAlgorithm extends BasicAlgorithm {
 
     @Override
-    protected Set<Node> recursiveCheckFormula(LTS lts, Formula formula) {
-        switch (formula.getType()) {
-            case MU:
-                return checkMuFormula(lts, (MuFormula) formula);
-            case NU:
-                return checkNuFormula(lts, (NuFormula) formula);
-            default:
-                return super.recursiveCheckFormula(lts, formula);
-        }
-    }
-
-    @Override
     protected void initializeVariables(LTS lts, Formula formula) {
         variableAssignments = new HashMap<>();
-        formula.getRecursionVariables().forEach((var) -> {
+        formula.getVariables().forEach((var) -> {
             variableAssignments.put(var.getName(), null);
         });
     }
 
     @Override
     protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
-        RecursionVariable var = formula.getVariable();
+        Variable var = formula.getVariable();
         variableAssignments.put(var.getName(), new HashSet<>());
 
         Set<Node> previousSolution = null;
@@ -55,7 +43,7 @@ public class NaiveAlgorithm extends BasicAlgorithm {
 
     @Override
     protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
-        RecursionVariable var = formula.getVariable();
+        Variable var = formula.getVariable();
         variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
 
         Set<Node> previousSolution = null;

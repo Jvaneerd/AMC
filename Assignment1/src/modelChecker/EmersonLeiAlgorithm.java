@@ -5,11 +5,8 @@
  */
 package modelChecker;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import model.formula.FixpointFormula;
 import model.formula.Formula;
@@ -18,7 +15,7 @@ import model.formula.LogicFormula;
 import model.formula.ModalFormula;
 import model.formula.MuFormula;
 import model.formula.NuFormula;
-import model.formula.RecursionVariable;
+import model.formula.Variable;
 import model.lts.LTS;
 import model.lts.Node;
 
@@ -28,99 +25,85 @@ import model.lts.Node;
  */
 public class EmersonLeiAlgorithm extends BasicAlgorithm {
 
-    private Map<RecursionVariable, List<FixpointFormula>> variableScopes;
-    
     @Override
-    protected Set<Node> recursiveCheckFormula(LTS lts, Formula formula) {
-        switch (formula.getType()) {
+    protected void initializeVariables(LTS lts, Formula formula) {
+        variableAssignments = new HashMap<>();
+        formula.getVariables().forEach((var) -> {
+            resetVariable(var, lts);
+        });
+    }
+
+    private void resetVariable(Variable var, LTS lts) {
+        switch (var.getScope()) {
             case MU:
-                return checkMuFormula(lts, (MuFormula) formula);
+                variableAssignments.put(var.getName(), new HashSet<>());
+                break;
             case NU:
-                return checkNuFormula(lts, (NuFormula) formula);
+                variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
+                break;
+            case FREE:
+                throw new UnsupportedOperationException("Free variables not supported yet.");
             default:
-                return super.recursiveCheckFormula(lts, formula);
+                break;
         }
     }
 
-    @Override
-    protected void initializeVariables(LTS lts, Formula formula) {
-        variableScopes = new HashMap<>();
-        variableAssignments = new HashMap<>();
-        Set<RecursionVariable> foo = formula.getRecursionVariables();
-        foo.forEach((var) -> {
-            FormulaType t = var.getScope();
-            if(null != t) switch (t) {
-                case MU:
-                    variableAssignments.put(var.getName(), new HashSet<>());
-                    break;
-                case NU:
-                    variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
-                    break;
-                case FREE:
-                    throw new UnsupportedOperationException("Free variables not supported yet.");
-                default:
-                    break;
-            }
-            List<FixpointFormula> varScope = new ArrayList<>();
-            if(!findVariable(formula, var, varScope)) throw new UnsupportedOperationException("Free variables not supported yet.");
-            else variableScopes.put(var, varScope);
-        });
-    }
-    
-    private boolean findVariable(Formula f, RecursionVariable r, List<FixpointFormula> s) {
-        switch(f.getType()) {
-            case VARIABLE: 
-                return f==r;
+    private void resetOpenSubFormulae(Formula formula, LTS lts) {
+        switch (formula.getType()) {
             case LOGIC:
-                return findVariable(((LogicFormula) f).getLhs(), r, s) || findVariable(((LogicFormula) f).getRhs(), r, s);
-            case MU:
-                MuFormula mf = (MuFormula) f;
-                if(mf.getVariable() == r) return true;
-                else {
-                    boolean found = findVariable(mf.getFormula(), r, s);
-                    if(found) s.add(mf);
-                    return found;
-                }
-            case NU:
-                NuFormula nf = (NuFormula) f;
-                if(nf.getVariable() == r) return true;
-                else {
-                    boolean found = findVariable(nf.getFormula(), r, s);
-                    if(found) s.add(nf);
-                    return found;
-                }
-            case TRUE:
-                return false;
-            case FALSE:
-                return false;
-            case BOX:
-                return findVariable(((ModalFormula) f).getFormula(), r, s);
+                LogicFormula logicFormula = (LogicFormula) formula;
+                resetOpenSubFormulae(logicFormula.getLhs(), lts);
+                resetOpenSubFormulae(logicFormula.getRhs(), lts);
+                break;
             case DIAMOND:
-                return findVariable(((ModalFormula) f).getFormula(), r, s);
+                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts);
+                break;
+            case BOX:
+                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts);
+                break;
+            case MU:
+                MuFormula muFormula = (MuFormula) formula;
+                if (muFormula.isOpen()) {
+                    resetVariable(muFormula.getVariable(), lts);
+                }
+                resetOpenSubFormulae(muFormula.getFormula(), lts);
+                break;
+            case NU:
+                NuFormula nuFormula = (NuFormula) formula;
+                if (nuFormula.isOpen()) {
+                    resetVariable(nuFormula.getVariable(), lts);
+                }
+                resetOpenSubFormulae(nuFormula.getFormula(), lts);
+                break;
             default:
-                return false;
+                break;
         }
     }
 
     @Override
     protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
-        RecursionVariable var = formula.getVariable();
-        Set<Node> oldSolution = variableAssignments.get(var.getName());
-        variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
-        
-        while (!oldSolution.equals(variableAssignments.get(var.getName()))) {
-            oldSolution = variableAssignments.get(var.getName());
-            variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
+        if (formula.getBinder() == FormulaType.NU) {
+            resetOpenSubFormulae(formula, lts);
         }
-        return variableAssignments.get(var.getName());
+
+        return checkFixpointFormula(lts, formula);
     }
 
     @Override
     protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
-        RecursionVariable var = formula.getVariable();
+        if (formula.getBinder() == FormulaType.MU) {
+            resetOpenSubFormulae(formula, lts);
+        }
+
+        return checkFixpointFormula(lts, formula);
+    }
+
+    private Set<Node> checkFixpointFormula(LTS lts, FixpointFormula formula) {
+        Variable var = formula.getVariable();
+
         Set<Node> oldSolution = variableAssignments.get(var.getName());
         variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
-        
+
         while (!oldSolution.equals(variableAssignments.get(var.getName()))) {
             oldSolution = variableAssignments.get(var.getName());
             variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
@@ -128,5 +111,4 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
         return variableAssignments.get(var.getName());
     }
 
-    
 }

@@ -11,8 +11,8 @@ package model.formula;
  */
 public class NuFormula extends FixpointFormula {
 
-    public NuFormula(RecursionVariable variable, Formula formula) {
-        super(FormulaType.NU, variable, formula);
+    public NuFormula(Variable variable, Formula formula, FormulaType binder) {
+        super(FormulaType.NU, variable, formula, binder);
     }
 
     @Override

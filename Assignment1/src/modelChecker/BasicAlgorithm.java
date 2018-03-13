@@ -16,7 +16,7 @@ import model.formula.LogicOperator;
 import model.formula.ModalFormula;
 import model.formula.MuFormula;
 import model.formula.NuFormula;
-import model.formula.RecursionVariable;
+import model.formula.Variable;
 import model.lts.Edge;
 import model.lts.LTS;
 import model.lts.Node;
@@ -41,13 +41,17 @@ public abstract class BasicAlgorithm {
             case FALSE:
                 return new HashSet<>();
             case VARIABLE:
-                return variableAssignments.get(((RecursionVariable) formula).getName());
+                return variableAssignments.get(((Variable) formula).getName());
             case LOGIC:
                 return checkLogicFormula(lts, ((LogicFormula) formula));
             case DIAMOND:
                 return checkDiamondFormula(lts, (DiamondFormula) formula);
             case BOX:
                 return checkBoxFormula(lts, (BoxFormula) formula);
+            case MU:
+                return checkMuFormula(lts, (MuFormula) formula);
+            case NU:
+                return checkNuFormula(lts, (NuFormula) formula);
             default:
                 // Throw exception?
                 return null;

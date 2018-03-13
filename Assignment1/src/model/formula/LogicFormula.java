@@ -39,8 +39,13 @@ public class LogicFormula extends Formula {
     }
 
     @Override
-    public Set<RecursionVariable> getRecursionVariables() {
-        return Stream.concat(lhs.getRecursionVariables().stream(), rhs.getRecursionVariables().stream()).collect(Collectors.toSet());
+    public Set<Variable> getVariables() {
+        return Stream.concat(lhs.getVariables().stream(), rhs.getVariables().stream()).collect(Collectors.toSet());
+    }
+
+    @Override
+    protected Set<Variable> getOpenVariables() {
+        return Stream.concat(lhs.getOpenVariables().stream(), rhs.getOpenVariables().stream()).collect(Collectors.toSet());
     }
 
     @Override
