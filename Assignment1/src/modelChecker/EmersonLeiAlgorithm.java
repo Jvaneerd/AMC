@@ -48,32 +48,32 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
         }
     }
 
-    private void resetOpenSubFormulae(Formula formula, LTS lts) {
+    private void resetOpenSubFormulae(Formula formula, LTS lts, FormulaType criterion) {
         switch (formula.getType()) {
             case LOGIC:
                 LogicFormula logicFormula = (LogicFormula) formula;
-                resetOpenSubFormulae(logicFormula.getLhs(), lts);
-                resetOpenSubFormulae(logicFormula.getRhs(), lts);
+                resetOpenSubFormulae(logicFormula.getLhs(), lts, criterion);
+                resetOpenSubFormulae(logicFormula.getRhs(), lts, criterion);
                 break;
             case DIAMOND:
-                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts);
+                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts, criterion);
                 break;
             case BOX:
-                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts);
+                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts, criterion);
                 break;
             case MU:
                 MuFormula muFormula = (MuFormula) formula;
-                if (muFormula.isOpen()) {
+                if (muFormula.isOpen() && criterion == FormulaType.MU) {
                     resetVariable(muFormula.getVariable(), lts);
                 }
-                resetOpenSubFormulae(muFormula.getFormula(), lts);
+                resetOpenSubFormulae(muFormula.getFormula(), lts, criterion);
                 break;
             case NU:
                 NuFormula nuFormula = (NuFormula) formula;
-                if (nuFormula.isOpen()) {
+                if (nuFormula.isOpen() && criterion == FormulaType.NU) {
                     resetVariable(nuFormula.getVariable(), lts);
                 }
-                resetOpenSubFormulae(nuFormula.getFormula(), lts);
+                resetOpenSubFormulae(nuFormula.getFormula(), lts, criterion);
                 break;
             default:
                 break;
@@ -83,7 +83,7 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
     @Override
     protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
         if (formula.getBinder() == FormulaType.NU) {
-            resetOpenSubFormulae(formula, lts);
+            resetOpenSubFormulae(formula, lts, FormulaType.MU);
         }
 
         return checkFixpointFormula(lts, formula);
@@ -92,7 +92,7 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
     @Override
     protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
         if (formula.getBinder() == FormulaType.MU) {
-            resetOpenSubFormulae(formula, lts);
+            resetOpenSubFormulae(formula, lts, FormulaType.NU);
         }
 
         return checkFixpointFormula(lts, formula);
