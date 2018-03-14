@@ -24,9 +24,6 @@ public class NaiveAlgorithm extends BasicAlgorithm {
     @Override
     protected void initializeVariables(LTS lts, Formula formula) {
         variableAssignments = new HashMap<>();
-        formula.getVariables().forEach((var) -> {
-            variableAssignments.put(var.getName(), null);
-        });
     }
 
     @Override

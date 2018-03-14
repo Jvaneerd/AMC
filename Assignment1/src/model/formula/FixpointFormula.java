@@ -19,12 +19,14 @@ public class FixpointFormula extends Formula {
     protected final Variable variable;
     protected final Formula formula;
     private final FormulaType binder;
-
+    private final boolean isOpen;
+    
     public FixpointFormula(FormulaType type, Variable variable, Formula formula, FormulaType binder) {
         super(type);
         this.variable = variable;
         this.formula = formula;
         this.binder = binder;
+        this.isOpen = !getOpenVariables().isEmpty();
     }
 
     public Variable getVariable() {
@@ -47,7 +49,7 @@ public class FixpointFormula extends Formula {
     }
 
     public boolean isOpen() {
-        return !getOpenVariables().isEmpty();
+        return isOpen;
     }
 
     @Override

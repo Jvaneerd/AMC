@@ -77,17 +77,14 @@ public abstract class BasicAlgorithm {
 
     private Set<Node> checkBoxFormula(LTS lts, ModalFormula formula) {
         Set<Node> nodesFormulaHoldsFor = recursiveCheckFormula(lts, formula.getFormula());
-        Set<Node> nodes = new HashSet<>();
-
+        Set<Node> nodes = new HashSet<>(lts.getNodes());
+        
         lts.getNodes().forEach((n) -> {
-            boolean addNode = true;
             for (Edge e : n.getSuccessors()) {
-                if (e.getLabel().equals(formula.getAction()) && addNode) {
-                    addNode = addNode && nodesFormulaHoldsFor.contains(e.getDest());
+                if (!nodesFormulaHoldsFor.contains(e.getDest()) && e.getLabel().equals(formula.getAction())) {
+                    nodes.remove(n);
+                    break;
                 }
-            }
-            if (addNode) {
-                nodes.add(n);
             }
         });
         return nodes;
