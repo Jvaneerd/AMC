@@ -15,7 +15,7 @@ import java.util.Set;
 public class FalseLiteral extends Formula {
 
     public FalseLiteral() {
-        super(FormulaType.TRUE);
+        super(FormulaType.FALSE);
     }
 
     @Override
