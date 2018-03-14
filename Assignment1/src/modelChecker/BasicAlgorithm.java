@@ -82,7 +82,7 @@ public abstract class BasicAlgorithm {
         lts.getNodes().forEach((n) -> {
             boolean addNode = true;
             for (Edge e : n.getSuccessors()) {
-                if (e.getLabel().equals(formula.getAction())) {
+                if (e.getLabel().equals(formula.getAction()) && addNode) {
                     addNode = addNode && nodesFormulaHoldsFor.contains(e.getDest());
                 }
             }
