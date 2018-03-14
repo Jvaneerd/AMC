@@ -37,7 +37,7 @@ public class Main {
      */
     public static void main(String[] args) throws ParseException, IOException {
         //TODO: proper arguments handling
-        String ltsPath = "tests/philosophers/dining_2.aut";
+        String ltsPath = "tests/modal_operators/dining_2.aut";
         String formulaPath = "tests/philosophers/invariantly_possibly_eat.mcf";
 
         List<String> ltsList = fileToList(ltsPath);
@@ -68,6 +68,8 @@ public class Main {
         endTime = System.currentTimeMillis();
         
         System.out.println("\nEmerson-Lei algorithm took " + (endTime - startTime) + " milliseconds");
+        if(elNodes.contains(l.getInitial())) System.out.println("Verdict: formula is >TRUE< for initial state");
+        else System.out.println("Verdicht: formula is >FALSE< for initial state");
         if(elNodes.equals(nodes)) System.out.println("Sets are equal!");
         else System.out.println("Sets are not equal!");
 //        System.out.println("The formula is valid in the following states (Emerson-Lei):");

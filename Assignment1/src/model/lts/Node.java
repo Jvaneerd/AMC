@@ -15,21 +15,15 @@ import java.util.List;
 public class Node implements Comparable {
 
     private final List<Edge> successors;
-    private final List<Edge> predecessors;
     private final int state;
 
     public Node(int state) {
         this.state = state;
         this.successors = new ArrayList<>();
-        this.predecessors = new ArrayList<>();
     }
 
     public void addSuccessor(Edge e) {
         successors.add(e);
-    }
-
-    public void addPredecessor(Edge e) {
-        predecessors.add(e);
     }
 
     public List<Edge> getSuccessors() {

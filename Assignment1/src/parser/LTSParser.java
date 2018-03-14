@@ -42,7 +42,6 @@ public class LTSParser {
             Node src = l.getNode(edgeSrc);
             Node dest = l.getNode(edgeDest);
             src.addSuccessor(new Edge(src, dest, edgeLbl));
-            src.addPredecessor(new Edge(dest, src, edgeLbl));
         }
 
         return l;
