@@ -78,10 +78,11 @@ public abstract class BasicAlgorithm {
                 if (e.getLabel().equals(formula.getAction())) {
                     if (operator == ModalOperator.BOX && !nodesFormulaHoldsFor.contains(e.getDest())) {
                         nodes.remove(n);
+                        break;
                     } else if (operator == ModalOperator.DIAMOND && nodesFormulaHoldsFor.contains(e.getDest())) {
                         nodes.add(n);
+                        break;
                     }
-                    break;
                 }
             }
         });

@@ -10,5 +10,5 @@ package model.formula;
  * @author s163360
  */
 public enum FormulaType {
-    FALSE, TRUE, VARIABLE, LOGIC, MODAL, FIXPOINT, FREE
+    FALSE, TRUE, VARIABLE, LOGIC, MODAL, FIXPOINT
 }
