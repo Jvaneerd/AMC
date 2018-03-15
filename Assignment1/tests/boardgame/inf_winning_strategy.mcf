@@ -1,0 +1,4 @@
+% Player II has a winning strategy so that all infinite plays are won by her
+
+nu X.mu Y. (<won>X || (([choose1]Y && <choose1>true)|| <choose2>Y))
+

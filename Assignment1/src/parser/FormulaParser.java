@@ -191,7 +191,7 @@ public class FormulaParser {
 
         String action = "";
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
-        if (currentChar.matches("[a-z_]")) {
+        if (currentChar.matches("[a-z0-9_]")) {
             action = parseActionName();
         } else {
             throw new ParseException("Expected action name but got: " + currentChar);
@@ -224,7 +224,7 @@ public class FormulaParser {
     private String parseActionName() throws ParseException {
         String action = "";
 
-        while (formula.substring(parseIndex, parseIndex + 1).matches("[a-z_]")) {
+        while (formula.substring(parseIndex, parseIndex + 1).matches("[a-z0-9_]")) {
             action += formula.substring(parseIndex, parseIndex + 1);
             parseIndex++;
         }

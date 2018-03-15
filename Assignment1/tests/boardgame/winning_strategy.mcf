@@ -1,0 +1,4 @@
+% Player II has a winning strategy
+
+mu X. (<won>true || (([choose1]X && <choose1>true) || <choose2>X))
+

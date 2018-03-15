@@ -36,9 +36,11 @@ public class Main {
      */
     public static void main(String[] args) throws ParseException, IOException {
         //TODO: proper arguments handling
-        String ltsPath = "tests/ccp/german_linear_2.1.aut";
-        String formulaPath = "tests/ccp/invariantly_possibly_exclusive_access.mcf";
+        //String ltsPath = "tests/demanding/demanding_children_2.aut";
+        //String formulaPath = "tests/demanding/johri2.mcf";
 
+        String ltsPath = "tests/boardgame/robots_400.aut";
+        String formulaPath = "tests/boardgame/inf_winning_strategy.mcf";
 
         List<String> ltsList = fileToList(ltsPath);
         String formula = fileToString(formulaPath);
@@ -56,22 +58,27 @@ public class Main {
         Set<Node> nodes = naiveAlgorithm.checkFormula(l, f);
         long endTime = System.currentTimeMillis();
         System.out.println("Naive algorithm took " + (endTime - startTime) + " milliseconds");
-        
+
 //        System.out.println("The formula is valid in the following states (naive):");
 //        new TreeSet<>(nodes).forEach((n) -> {
 //            System.out.print(n.getState() + ", ");
 //        });
-        
         EmersonLeiAlgorithm elAlgo = new EmersonLeiAlgorithm();
         startTime = System.currentTimeMillis();
         Set<Node> elNodes = elAlgo.checkFormula(l, f);
         endTime = System.currentTimeMillis();
-        
+
         System.out.println("\nEmerson-Lei algorithm took " + (endTime - startTime) + " milliseconds");
-        if(elNodes.contains(l.getInitial())) System.out.println("Verdict: formula is >TRUE< for initial state");
-        else System.out.println("Verdict: formula is >FALSE< for initial state");
-        if(elNodes.equals(nodes)) System.out.println("Sets are equal!");
-        else System.out.println("Sets are not equal!");
+        if (elNodes.contains(l.getInitial())) {
+            System.out.println("Verdict: formula is >TRUE< for initial state");
+        } else {
+            System.out.println("Verdict: formula is >FALSE< for initial state");
+        }
+        if (elNodes.equals(nodes)) {
+            System.out.println("Sets are equal!");
+        } else {
+            System.out.println("Sets are not equal!");
+        }
 //        System.out.println("The formula is valid in the following states (Emerson-Lei):");
 //        new TreeSet<>(elNodes).forEach((n) -> {
 //            System.out.print(n.getState() + ", ");
