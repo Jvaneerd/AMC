@@ -36,8 +36,9 @@ public class Main {
      */
     public static void main(String[] args) throws ParseException, IOException {
         //TODO: proper arguments handling
-        String ltsPath = "tests/philosophers/dining_10.aut";
-        String formulaPath = "tests/philosophers/invariantly_possibly_eat.mcf";
+        String ltsPath = "tests/ccp/german_linear_2.1.aut";
+        String formulaPath = "tests/ccp/invariantly_possibly_exclusive_access.mcf";
+
 
         List<String> ltsList = fileToList(ltsPath);
         String formula = fileToString(formulaPath);
