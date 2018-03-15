@@ -1,0 +1,5 @@
+nu X.
+   ([i]([i]false && ([playing]X && ([ask]X && [wisdom]X))) &&
+   ([playing]([i]X && ([playing]false && ([ask]false && [wisdom]false))) &&
+   ([ask]([i]X && ([playing]false && ([ask]false && [wisdom]false))) &&
+   [wisdom]([i]X && ([playing]false && ([ask]false && [wisdom]false))))))
