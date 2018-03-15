@@ -18,15 +18,17 @@ public class FixpointFormula extends Formula {
 
     protected final Variable variable;
     protected final Formula formula;
-    private final FormulaType binder;
+    private final FixpointType operator;
+    private final FixpointType binder;
     private final boolean isOpen;
-    
-    public FixpointFormula(FormulaType type, Variable variable, Formula formula, FormulaType binder) {
-        super(type);
+
+    public FixpointFormula(Variable variable, Formula formula, FixpointType operator, FixpointType binder) {
+        super(FormulaType.FIXPOINT);
         this.variable = variable;
         this.formula = formula;
+        this.operator = operator;
         this.binder = binder;
-        this.isOpen = !getOpenVariables().isEmpty();
+        this.isOpen = !getFreeVariables().isEmpty();
     }
 
     public Variable getVariable() {
@@ -37,13 +39,17 @@ public class FixpointFormula extends Formula {
         return formula;
     }
 
-    public FormulaType getBinder() {
+    public FixpointType getOperator() {
+        return operator;
+    }
+
+    public FixpointType getBinder() {
         return binder;
     }
 
     @Override
-    protected Set<Variable> getOpenVariables() {
-        Set<Variable> vars = formula.getOpenVariables();
+    protected Set<Variable> getFreeVariables() {
+        Set<Variable> vars = formula.getFreeVariables();
         vars.remove(this.variable);
         return vars;
     }
@@ -57,5 +63,14 @@ public class FixpointFormula extends Formula {
         Set<Variable> set = new HashSet<>();
         set.add(this.variable);
         return Stream.concat(set.stream(), formula.getVariables().stream()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String toString() {
+        if (operator == FixpointType.MU) {
+            return "mu " + variable.toString() + "." + formula.toString();
+        } else {
+            return "nu " + variable.toString() + "." + formula.toString();
+        }
     }
 }

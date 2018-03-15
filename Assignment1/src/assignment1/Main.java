@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import model.formula.Formula;
@@ -69,7 +68,7 @@ public class Main {
         
         System.out.println("\nEmerson-Lei algorithm took " + (endTime - startTime) + " milliseconds");
         if(elNodes.contains(l.getInitial())) System.out.println("Verdict: formula is >TRUE< for initial state");
-        else System.out.println("Verdicht: formula is >FALSE< for initial state");
+        else System.out.println("Verdict: formula is >FALSE< for initial state");
         if(elNodes.equals(nodes)) System.out.println("Sets are equal!");
         else System.out.println("Sets are not equal!");
 //        System.out.println("The formula is valid in the following states (Emerson-Lei):");

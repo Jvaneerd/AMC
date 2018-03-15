@@ -15,9 +15,9 @@ import java.util.Set;
 public class Variable extends Formula {
 
     private final String name;
-    private final FormulaType scope;
+    private final FixpointType scope;
 
-    public Variable(String name, FormulaType scope) {
+    public Variable(String name, FixpointType scope) {
         super(FormulaType.VARIABLE);
         this.name = name;
         this.scope = scope;
@@ -27,7 +27,7 @@ public class Variable extends Formula {
         return name;
     }
 
-    public FormulaType getScope() {
+    public FixpointType getScope() {
         return scope;
     }
 
@@ -39,7 +39,7 @@ public class Variable extends Formula {
     }
 
     @Override
-    protected Set<Variable> getOpenVariables() {
+    protected Set<Variable> getFreeVariables() {
         return getVariables();
     }
     

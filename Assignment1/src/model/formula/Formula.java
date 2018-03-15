@@ -25,5 +25,5 @@ public abstract class Formula {
 
     public abstract Set<Variable> getVariables();
 
-    protected abstract Set<Variable> getOpenVariables();
+    protected abstract Set<Variable> getFreeVariables();
 }

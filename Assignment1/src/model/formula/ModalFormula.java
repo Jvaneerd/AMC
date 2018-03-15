@@ -15,11 +15,13 @@ public class ModalFormula extends Formula {
 
     protected final String action;
     protected final Formula formula;
+    protected final ModalOperator operator;
 
-    public ModalFormula(FormulaType type, String action, Formula formula) {
-        super(type);
+    public ModalFormula(String action, Formula formula, ModalOperator operator) {
+        super(FormulaType.MODAL);
         this.action = action;
         this.formula = formula;
+        this.operator = operator;
     }
 
     public String getAction() {
@@ -30,13 +32,26 @@ public class ModalFormula extends Formula {
         return formula;
     }
 
+    public ModalOperator getOperator() {
+        return operator;
+    }
+
     @Override
     public Set<Variable> getVariables() {
         return formula.getVariables();
     }
-    
+
     @Override
-    protected Set<Variable> getOpenVariables() {
-        return formula.getOpenVariables();
+    protected Set<Variable> getFreeVariables() {
+        return formula.getFreeVariables();
+    }
+
+    @Override
+    public String toString() {
+        if (operator == ModalOperator.BOX) {
+            return "[" + action + "]" + formula.toString();
+        } else {
+            return "<" + action + ">" + formula.toString();
+        }
     }
 }

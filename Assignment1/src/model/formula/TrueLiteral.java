@@ -29,7 +29,7 @@ public class TrueLiteral extends Formula {
     }
 
     @Override
-    protected Set<Variable> getOpenVariables() {
+    protected Set<Variable> getFreeVariables() {
         return new HashSet<>();
     }
 

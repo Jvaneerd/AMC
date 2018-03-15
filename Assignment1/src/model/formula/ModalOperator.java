@@ -9,6 +9,6 @@ package model.formula;
  *
  * @author s163360
  */
-public enum FormulaType {
-    FALSE, TRUE, VARIABLE, LOGIC, MODAL, FIXPOINT, FREE
+public enum ModalOperator {
+    BOX, DIAMOND
 }

@@ -8,14 +8,12 @@ package modelChecker;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import model.formula.BoxFormula;
-import model.formula.DiamondFormula;
+import model.formula.FixpointFormula;
 import model.formula.Formula;
 import model.formula.LogicFormula;
 import model.formula.LogicOperator;
 import model.formula.ModalFormula;
-import model.formula.MuFormula;
-import model.formula.NuFormula;
+import model.formula.ModalOperator;
 import model.formula.Variable;
 import model.lts.Edge;
 import model.lts.LTS;
@@ -44,14 +42,10 @@ public abstract class BasicAlgorithm {
                 return variableAssignments.get(((Variable) formula).getName());
             case LOGIC:
                 return checkLogicFormula(lts, ((LogicFormula) formula));
-            case DIAMOND:
-                return checkDiamondFormula(lts, (DiamondFormula) formula);
-            case BOX:
-                return checkBoxFormula(lts, (BoxFormula) formula);
-            case MU:
-                return checkMuFormula(lts, (MuFormula) formula);
-            case NU:
-                return checkNuFormula(lts, (NuFormula) formula);
+            case MODAL:
+                return checkModalFormula(lts, (ModalFormula) formula);
+            case FIXPOINT:
+                return checkFixpointFormula(lts, (FixpointFormula) formula);
             default:
                 // Throw exception?
                 return null;
@@ -60,9 +54,7 @@ public abstract class BasicAlgorithm {
 
     protected abstract void initializeVariables(LTS lts, Formula formula);
 
-    protected abstract Set<Node> checkMuFormula(LTS lts, MuFormula formula);
-
-    protected abstract Set<Node> checkNuFormula(LTS lts, NuFormula formula);
+    protected abstract Set<Node> checkFixpointFormula(LTS lts, FixpointFormula formula);
 
     private Set<Node> checkLogicFormula(LTS lts, LogicFormula formula) {
         Set<Node> lhs = recursiveCheckFormula(lts, formula.getLhs());
@@ -75,10 +67,31 @@ public abstract class BasicAlgorithm {
         return lhs;
     }
 
+    private Set<Node> checkModalFormula(LTS lts, ModalFormula formula) {
+        Set<Node> nodesFormulaHoldsFor = recursiveCheckFormula(lts, formula.getFormula());
+        ModalOperator operator = formula.getOperator();
+
+        Set<Node> nodes = operator == ModalOperator.BOX ? new HashSet<>(lts.getNodes()) : new HashSet<>();
+
+        lts.getNodes().forEach((n) -> {
+            for (Edge e : n.getSuccessors()) {
+                if (e.getLabel().equals(formula.getAction())) {
+                    if (operator == ModalOperator.BOX && !nodesFormulaHoldsFor.contains(e.getDest())) {
+                        nodes.remove(n);
+                    } else if (operator == ModalOperator.DIAMOND && nodesFormulaHoldsFor.contains(e.getDest())) {
+                        nodes.add(n);
+                    }
+                    break;
+                }
+            }
+        });
+        return nodes;
+    }
+
     private Set<Node> checkBoxFormula(LTS lts, ModalFormula formula) {
         Set<Node> nodesFormulaHoldsFor = recursiveCheckFormula(lts, formula.getFormula());
         Set<Node> nodes = new HashSet<>(lts.getNodes());
-        
+
         lts.getNodes().forEach((n) -> {
             for (Edge e : n.getSuccessors()) {
                 if (!nodesFormulaHoldsFor.contains(e.getDest()) && e.getLabel().equals(formula.getAction())) {

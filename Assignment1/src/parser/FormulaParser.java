@@ -7,15 +7,14 @@ package parser;
 
 import java.util.HashSet;
 import java.util.Set;
-import model.formula.BoxFormula;
-import model.formula.DiamondFormula;
 import model.formula.FalseLiteral;
+import model.formula.FixpointFormula;
+import model.formula.FixpointType;
 import model.formula.Formula;
-import model.formula.FormulaType;
 import model.formula.LogicFormula;
 import model.formula.LogicOperator;
-import model.formula.MuFormula;
-import model.formula.NuFormula;
+import model.formula.ModalFormula;
+import model.formula.ModalOperator;
 import model.formula.TrueLiteral;
 import model.formula.Variable;
 
@@ -43,7 +42,7 @@ public class FormulaParser {
         }
     }
 
-    private Formula parseFormula(FormulaType scope) throws ParseException {
+    private Formula parseFormula(FixpointType scope) throws ParseException {
         skipWhitespace();
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
 
@@ -97,7 +96,7 @@ public class FormulaParser {
         return new FalseLiteral();
     }
 
-    private Variable parseBoundVariable(FormulaType scope) throws ParseException {
+    private Variable parseBoundVariable(FixpointType scope) throws ParseException {
         String name = formula.substring(parseIndex, parseIndex + 1);
         parseIndex++;
         return new Variable(name, scope);
@@ -111,10 +110,10 @@ public class FormulaParser {
                 return var;
             }
         }
-        return new Variable(name, FormulaType.FREE);
+        throw new ParseException("Encountered a free variable during parsing, model checker does not support free variables.");
     }
 
-    private Formula parseLogicFormula(FormulaType scope) throws ParseException {
+    private Formula parseLogicFormula(FixpointType scope) throws ParseException {
         expect("(");
 
         Formula lhs = parseFormula(scope);
@@ -146,14 +145,14 @@ public class FormulaParser {
         }
     }
 
-    private Formula parseMuFormula(FormulaType scope) throws ParseException {
+    private Formula parseMuFormula(FixpointType scope) throws ParseException {
         expect("mu ");
         skipWhitespace();
 
         Variable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
-            variable = parseBoundVariable(FormulaType.MU);
+            variable = parseBoundVariable(FixpointType.MU);
             boundVariables.add(variable);
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
@@ -161,19 +160,19 @@ public class FormulaParser {
 
         expect(".");
 
-        Formula f = parseFormula(FormulaType.MU);
+        Formula f = parseFormula(FixpointType.MU);
         boundVariables.remove(variable);
-        return new MuFormula(variable, f, scope);
+        return new FixpointFormula(variable, f, FixpointType.MU, scope);
     }
 
-    private Formula parseNuFormula(FormulaType scope) throws ParseException {
+    private Formula parseNuFormula(FixpointType scope) throws ParseException {
         expect("nu ");
         skipWhitespace();
 
         Variable variable;
         String currentChar = formula.substring(parseIndex, parseIndex + 1);
         if (currentChar.matches("[A-Z]")) {
-            variable = parseBoundVariable(FormulaType.NU);
+            variable = parseBoundVariable(FixpointType.NU);
             boundVariables.add(variable);
         } else {
             throw new ParseException("Expected variable name but got: " + currentChar);
@@ -181,12 +180,12 @@ public class FormulaParser {
 
         expect(".");
 
-        Formula f = parseFormula(FormulaType.NU);
+        Formula f = parseFormula(FixpointType.NU);
         boundVariables.remove(variable);
-        return new NuFormula(variable, f, scope);
+        return new FixpointFormula(variable, f, FixpointType.NU, scope);
     }
 
-    private Formula parseDiamondFormula(FormulaType scope) throws ParseException {
+    private Formula parseDiamondFormula(FixpointType scope) throws ParseException {
         expect("<");
         skipWhitespace();
 
@@ -201,10 +200,10 @@ public class FormulaParser {
         expect(">");
 
         Formula f = parseFormula(scope);
-        return new DiamondFormula(action, f);
+        return new ModalFormula(action, f, ModalOperator.DIAMOND);
     }
 
-    private Formula parseBoxFormula(FormulaType scope) throws ParseException {
+    private Formula parseBoxFormula(FixpointType scope) throws ParseException {
         expect("[");
         skipWhitespace();
 
@@ -219,7 +218,7 @@ public class FormulaParser {
         expect("]");
 
         Formula f = parseFormula(scope);
-        return new BoxFormula(action, f);
+        return new ModalFormula(action, f, ModalOperator.BOX);
     }
 
     private String parseActionName() throws ParseException {

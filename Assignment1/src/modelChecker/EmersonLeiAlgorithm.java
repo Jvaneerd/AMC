@@ -9,12 +9,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import model.formula.FixpointFormula;
+import model.formula.FixpointType;
 import model.formula.Formula;
-import model.formula.FormulaType;
 import model.formula.LogicFormula;
 import model.formula.ModalFormula;
-import model.formula.MuFormula;
-import model.formula.NuFormula;
 import model.formula.Variable;
 import model.lts.LTS;
 import model.lts.Node;
@@ -34,46 +32,29 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
     }
 
     private void resetVariable(Variable var, LTS lts) {
-        switch (var.getScope()) {
-            case MU:
-                variableAssignments.put(var.getName(), new HashSet<>());
-                break;
-            case NU:
-                variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
-                break;
-            case FREE:
-                throw new UnsupportedOperationException("Free variables not supported yet.");
-            default:
-                break;
+        if (var.getScope() == FixpointType.MU) {
+            variableAssignments.put(var.getName(), new HashSet<>());
+        } else {
+            variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
         }
     }
 
-    private void resetOpenSubFormulae(Formula formula, LTS lts, FormulaType criterion) {
+    private void resetOpenSubFormulae(Formula formula, LTS lts, FixpointType criterion) {
         switch (formula.getType()) {
             case LOGIC:
                 LogicFormula logicFormula = (LogicFormula) formula;
                 resetOpenSubFormulae(logicFormula.getLhs(), lts, criterion);
                 resetOpenSubFormulae(logicFormula.getRhs(), lts, criterion);
                 break;
-            case DIAMOND:
+            case MODAL:
                 resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts, criterion);
                 break;
-            case BOX:
-                resetOpenSubFormulae(((ModalFormula) formula).getFormula(), lts, criterion);
-                break;
-            case MU:
-                MuFormula muFormula = (MuFormula) formula;
-                if (muFormula.isOpen() && criterion == FormulaType.MU) {
-                    resetVariable(muFormula.getVariable(), lts);
+            case FIXPOINT:
+                FixpointFormula fixpointFormula = (FixpointFormula) formula;
+                if (fixpointFormula.isOpen() && criterion == fixpointFormula.getOperator()) {
+                    resetVariable(fixpointFormula.getVariable(), lts);
                 }
-                resetOpenSubFormulae(muFormula.getFormula(), lts, criterion);
-                break;
-            case NU:
-                NuFormula nuFormula = (NuFormula) formula;
-                if (nuFormula.isOpen() && criterion == FormulaType.NU) {
-                    resetVariable(nuFormula.getVariable(), lts);
-                }
-                resetOpenSubFormulae(nuFormula.getFormula(), lts, criterion);
+                resetOpenSubFormulae(fixpointFormula.getFormula(), lts, criterion);
                 break;
             default:
                 break;
@@ -81,25 +62,12 @@ public class EmersonLeiAlgorithm extends BasicAlgorithm {
     }
 
     @Override
-    protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
-        if (formula.getBinder() == FormulaType.NU) {
-            resetOpenSubFormulae(formula, lts, FormulaType.MU);
-        }
-
-        return checkFixpointFormula(lts, formula);
-    }
-
-    @Override
-    protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
-        if (formula.getBinder() == FormulaType.MU) {
-            resetOpenSubFormulae(formula, lts, FormulaType.NU);
-        }
-
-        return checkFixpointFormula(lts, formula);
-    }
-
-    private Set<Node> checkFixpointFormula(LTS lts, FixpointFormula formula) {
+    protected Set<Node> checkFixpointFormula(LTS lts, FixpointFormula formula) {
         Variable var = formula.getVariable();
+
+        if (formula.getBinder() != formula.getOperator()) {
+            resetOpenSubFormulae(formula, lts, formula.getOperator());
+        }
 
         Set<Node> oldSolution = variableAssignments.get(var.getName());
         variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));

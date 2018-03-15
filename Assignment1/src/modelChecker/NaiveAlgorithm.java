@@ -8,9 +8,9 @@ package modelChecker;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import model.formula.FixpointFormula;
+import model.formula.FixpointType;
 import model.formula.Formula;
-import model.formula.MuFormula;
-import model.formula.NuFormula;
 import model.formula.Variable;
 import model.lts.LTS;
 import model.lts.Node;
@@ -27,21 +27,14 @@ public class NaiveAlgorithm extends BasicAlgorithm {
     }
 
     @Override
-    protected Set<Node> checkMuFormula(LTS lts, MuFormula formula) {
+    protected Set<Node> checkFixpointFormula(LTS lts, FixpointFormula formula) {
         Variable var = formula.getVariable();
-        variableAssignments.put(var.getName(), new HashSet<>());
 
-        Set<Node> previousSolution = null;
-        while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var.getName()))) {
-            previousSolution = variableAssignments.put(var.getName(), recursiveCheckFormula(lts, formula.getFormula()));
+        if (formula.getOperator() == FixpointType.MU) {
+            variableAssignments.put(var.getName(), new HashSet<>());
+        } else {
+            variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
         }
-        return variableAssignments.get(var.getName());
-    }
-
-    @Override
-    protected Set<Node> checkNuFormula(LTS lts, NuFormula formula) {
-        Variable var = formula.getVariable();
-        variableAssignments.put(var.getName(), new HashSet<>(lts.getNodes()));
 
         Set<Node> previousSolution = null;
         while (previousSolution == null || !previousSolution.equals(variableAssignments.get(var.getName()))) {

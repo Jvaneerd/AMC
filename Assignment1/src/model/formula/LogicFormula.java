@@ -44,8 +44,8 @@ public class LogicFormula extends Formula {
     }
 
     @Override
-    protected Set<Variable> getOpenVariables() {
-        return Stream.concat(lhs.getOpenVariables().stream(), rhs.getOpenVariables().stream()).collect(Collectors.toSet());
+    protected Set<Variable> getFreeVariables() {
+        return Stream.concat(lhs.getFreeVariables().stream(), rhs.getFreeVariables().stream()).collect(Collectors.toSet());
     }
 
     @Override
