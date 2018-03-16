@@ -26,13 +26,20 @@ import model.lts.Node;
 public abstract class BasicAlgorithm {
 
     protected Map<String, Set<Node>> variableAssignments;
+    private int iterations;
 
     public Set<Node> checkFormula(LTS lts, Formula formula) {
+        this.iterations = 0;
         initializeVariables(lts, formula);
         return recursiveCheckFormula(lts, formula);
     }
 
+    public int getIterations() {
+        return iterations;
+    }
+
     protected Set<Node> recursiveCheckFormula(LTS lts, Formula formula) {
+        iterations++;
         switch (formula.getType()) {
             case TRUE:
                 return new HashSet<>(lts.getNodes());
