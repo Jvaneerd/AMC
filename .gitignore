@@ -26,3 +26,13 @@ hs_err_pid*
 /Assignment1/dist/
 /Assignment1/nbdist/
 /Assignment1/.nb-gradle/
+/Assignment2/Debug/
+Assignment2/Assignment2.sln
+*.opendb
+Assignment2/Assignment2.VC.db
+*.filters
+Assignment2/Assignment2.vcxproj
+Assignment2/stdafx.cpp
+Assignment2/stdafx.h
+*.suo
+Assignment2/targetver.h
