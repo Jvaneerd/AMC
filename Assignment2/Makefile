@@ -1,0 +1,28 @@
+CXX=g++
+RM=rm -f
+CPPFLAGS=-std=c++14
+LDFLAGS=
+LDLIBS=
+
+SRCS=main.cpp Node.cpp ParityGame.cpp
+OBJS=$(subst .cpp,.o,$(SRCS))
+TARGET=PGP
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS) 
+
+depend: .depend
+
+.depend: $(SRCS)
+	$(RM) ./.depend
+	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+
+clean:
+	$(RM) $(OBJS)
+
+distclean: clean
+	$(RM) *~ .depend
+
+include .depend
