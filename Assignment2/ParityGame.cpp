@@ -1,14 +1,12 @@
 #include "ParityGame.hpp"
 
-ParityGame::ParityGame(std::vector<Node*> nodes) : nodes(nodes) {
+ParityGame::ParityGame(std::vector<Node*> nodes, int maxPriority)
+  : nodes(nodes),
+    maxPriority(maxPriority) {
 }
 
 ParityGame::~ParityGame() {
   for (Node* n : nodes) delete(n);
-}
-
-Node* ParityGame::getNode(int id) {
-  return nodes[id];
 }
 
 std::string ParityGame::toString() {

@@ -4,7 +4,7 @@ CPPFLAGS=-std=c++14
 LDFLAGS=
 LDLIBS=
 
-SRCS=main.cpp Node.cpp ParityGame.cpp
+SRCS=main.cpp Node.cpp ParityGame.cpp Measure.cpp Solver.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 TARGET=PGP
 

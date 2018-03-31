@@ -11,6 +11,7 @@ private:
   std::vector<Node*> successors;
 public:
   Node(int id, int priority, bool isEven, std::string name);
+  inline int getPriority() { return priority; }
   void addSuccessor(Node* suc);
   std::string toString();
 };

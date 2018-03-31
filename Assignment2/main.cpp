@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "ParityGameParser.hpp"
+#include "Solver.hpp"
 
 int main(int argc, char *argv[]) {
   std::ifstream infile;
@@ -17,6 +18,7 @@ int main(int argc, char *argv[]) {
   }
   ParityGame* pg = PGParser::pgParse(infile);
   std::cout << pg->toString();
+  PGSolver* sv = new PGSolver(pg);
   delete(pg);
   return 0;
 }

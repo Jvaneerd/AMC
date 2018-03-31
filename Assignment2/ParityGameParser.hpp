@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,6 +9,7 @@ namespace PGParser {
   inline ParityGame* pgParse(std::ifstream &infile) {
     int id, priority, owner;
     std::string successors, name;
+    int maxPrio = 0;
 
     //Ignore parity keyword
     infile.ignore(7, ' ');
@@ -38,6 +40,7 @@ namespace PGParser {
       // Create node object
       auto node = new Node(id, priority, owner == 0, name);
 
+      maxPrio = std::max(priority, maxPrio);
       //Nodes must have unique identifiers; delete nodes previously created under this ID
       if(nodes[id] != NULL) delete(nodes[id]);
 
@@ -47,7 +50,7 @@ namespace PGParser {
       delete(dup);
     }
     // Create parity game
-    auto parityGame = new ParityGame(nodes);
+    auto parityGame = new ParityGame(nodes, maxPrio);
 
     auto succDelim = ",";
     // Add successors
