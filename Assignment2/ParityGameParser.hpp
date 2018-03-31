@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
-#include "ParityGame.h"
+#include "ParityGame.hpp"
 
 namespace PGParser {
   inline ParityGame* pgParse(std::ifstream &infile) {

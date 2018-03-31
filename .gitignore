@@ -1,3 +1,7 @@
+*.o
+.depend
+PGP
+
 # Compiled class file
 *.class
 

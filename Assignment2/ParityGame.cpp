@@ -1,4 +1,4 @@
-#include "ParityGame.h"
+#include "ParityGame.hpp"
 
 ParityGame::ParityGame(std::vector<Node*> nodes) : nodes(nodes) {
 }

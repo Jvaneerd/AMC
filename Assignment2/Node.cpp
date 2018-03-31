@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "Node.hpp"
 
 Node::Node(int id, int priority, bool isEven, std::string name) : id(id), priority(priority), isEven(isEven), name(name) {}
 
