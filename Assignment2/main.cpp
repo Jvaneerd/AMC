@@ -17,8 +17,10 @@ int main(int argc, char *argv[]) {
     }
   }
   ParityGame* pg = PGParser::pgParse(infile);
-  std::cout << pg->toString();
   PGSolver* sv = new PGSolver(pg);
+  sv->SolvePG(); // Blocking until PG has been solved
+  std::cout << "Parity game solved in <interesting metric>, results:\n" << sv->GetPGResult() << std::endl;
   delete(pg);
+  delete(sv);
   return 0;
 }
