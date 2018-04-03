@@ -37,17 +37,13 @@ bool PGSolver::Lift(std::shared_ptr<Node> v) {
     *res = this->max; //otherwise nothing will be lower than a fresh Measure
     for(auto it : v->getSuccessors()) {
       auto temp = Prog(v, it);
-      if(*temp < *res) { // < to denote min of all progs of successors
-	res = temp; 
-      }
+      if(*temp < *res) res = temp; // < to denote min of all progs of successors
     }
   }
   else {
     for(auto it : v->getSuccessors()) {
       auto temp = Prog(v, it);
-      if(*temp > *res) { // > to denote max of all progs of successors
-	res = temp; 
-      }
+      if(*temp > *res) res = temp; // > to denote max of all progs of successors
     }
   }
   if(*progressMeasures[v] != *res) { //the result of all the progs is different, update v in progressMeasures
@@ -61,11 +57,8 @@ bool PGSolver::Lift(std::shared_ptr<Node> v) {
 void PGSolver::SolvePG() {
   std::map<std::shared_ptr<Node>, bool> nodeFullyLifted;
   for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = false;
-  int i = 0;
   while(std::count_if(nodeFullyLifted.begin(), nodeFullyLifted.end(),
 		      [&](std::pair<std::shared_ptr<Node>, bool> p){ return !p.second; })) {
-    std::cout << "Iteration: " << i << std::endl;
-    i++;
     for(auto &it : nodeFullyLifted) it.second = false; //TODO: implement predecessors of node to more easily update.
     for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = (it.second->isTop() || Lift(it.first));
   }
@@ -75,14 +68,21 @@ void PGSolver::SolvePG() {
 std::string PGSolver::GetPGResult() {
   if(!this->isSolved) return "PG not solved yet...\n";
   else {
-    std::vector<int> even;
-    std::vector<int> odd;
-    for(auto &it : this->progressMeasures) {
-      if(it.second->isTop()) odd.emplace_back(it.first->getId());
-      else even.emplace_back(it.first->getId());
-    }
+//    std::vector<int> even;
+//    std::vector<int> odd;
     std::ostringstream ss;
-    ss << "Nodes won by player even:\n";
+    for(auto &it : this->progressMeasures) {
+      if(it.first->getId() == 0) {
+	ss << it.first->toString() << " was won by player: ";
+	if(it.second->isTop()) ss << ">ODD<";
+	else ss << ">EVEN<";
+	break;
+      }
+//      if(it.second->isTop()) odd.emplace_back(it.first->getId());
+//      else even.emplace_back(it.first->getId());
+    }
+
+/*    ss << "Nodes won by player even:\n" << even.size();
     if(even.size() > 0) {
       std::sort(even.begin(), even.end());
       std::copy(even.begin(), even.end() - 1, std::ostream_iterator<int>(ss, ", "));
@@ -93,7 +93,7 @@ std::string PGSolver::GetPGResult() {
       std::sort(odd.begin(), odd.end());
       std::copy(odd.begin(), odd.end() - 1, std::ostream_iterator<int>(ss, ", "));
       ss << odd.back();
-    }
+      }*/
     return ss.str();
   }
 }
