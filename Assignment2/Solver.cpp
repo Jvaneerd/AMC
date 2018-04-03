@@ -7,8 +7,8 @@
 
 Measure PGSolver::findMaxMeasure(ParityGame *pg) const {
   std::vector<unsigned> prioOccs(pg->getMaxPriority() + 1, 0); // +1 because priority 0 needs to be included
-  for( Node *n : pg->getNodes()) {
-    auto p = n->getPriority();
+  for( auto it : pg->getNodes()) {
+    auto p = it->getPriority();
     if(p & 1) prioOccs[p]++; //p & 1 means least significant bit is set, so value is odd
   }
   return Measure(prioOccs);
@@ -18,37 +18,40 @@ PGSolver::PGSolver(ParityGame *pg)
   : max(findMaxMeasure(pg)),
     pg(pg),
     isSolved(false) {
-  for(Node *n : pg->getNodes()) progressMeasures[n] = new Measure(this->max);
+  for(auto it : pg->getNodes()) progressMeasures[it] = std::shared_ptr<Measure>(new Measure(this->max));
 }
 
-Measure *PGSolver::Prog(Node &v, Node &w) {
-  auto prio = v.getPriority();
-  Measure *res = new Measure(this->max);
-  res->makeEqUpTo(prio, *(this->progressMeasures[&w])); //At this point, res ==prio w, so least res >=prio w is fulfilled
+std::shared_ptr<Measure> PGSolver::Prog(std::shared_ptr<Node> v, std::shared_ptr<Node> w) {
+  auto prio = v->getPriority();
+  std::shared_ptr<Measure> res(new Measure(this->max));
+  res->makeEqUpTo(prio, *(this->progressMeasures[w])); //At this point, res ==prio w, so least res >=prio w is fulfilled
   if((prio & 1) && !res->isTop()) { //prio & 1 means least significant bit is set, so prio is odd
     if(!res->tryIncrement(prio)) res->makeTop(); //If res can't be incremented in the bounded range, then it must become top
   }
   return res;
 }
 
-bool PGSolver::Lift(Node &v) {
-  Measure *res = new Measure(this->max);
-  if(v.IsEven()) {
-    res = (Measure *)&this->max;
-    for(auto &it : v.getSuccessors()) {
-      Measure *temp = Prog(v, *it);
-      if(*temp < *res) res = temp; // < to denote min of all progs of successors
+bool PGSolver::Lift(std::shared_ptr<Node> v) {
+  std::shared_ptr<Measure> res(new Measure(this->max));
+  if(v->IsEven()) {
+    *res = this->max; //otherwise nothing will be lower than a fresh Measure
+    for(auto it : v->getSuccessors()) {
+      auto temp = Prog(v, it);
+      if(*temp < *res) { // < to denote min of all progs of successors
+	res = temp; 
+      }
     }
   }
   else {
-    for(auto &it : v.getSuccessors()) {
-      Measure *temp = Prog(v, *it);
-      if(*temp > *res) res = temp; // > to denote max of all progs of successors
+    for(auto it : v->getSuccessors()) {
+      auto temp = Prog(v, it);
+      if(*temp > *res) { // > to denote max of all progs of successors
+	res = temp; 
+      }
     }
   }
-  if(*progressMeasures[&v] != *res) { //the result of all the progs is different, update v in progressMeasures
-    delete(progressMeasures[&v]);
-    progressMeasures[&v] = res;
+  if(*progressMeasures[v] != *res) { //the result of all the progs is different, update v in progressMeasures
+    progressMeasures[v] = res;
     return false; //Something's changed
   }
 
@@ -56,14 +59,15 @@ bool PGSolver::Lift(Node &v) {
 }
 
 void PGSolver::SolvePG() {
-  std::map<Node *, bool> nodeFullyLifted;
+  std::map<std::shared_ptr<Node>, bool> nodeFullyLifted;
   for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = false;
   int i = 0;
-  while(std::count_if(nodeFullyLifted.begin(), nodeFullyLifted.end(), [&](std::pair<Node *, bool> p){ return !p.second; })) {
-
+  while(std::count_if(nodeFullyLifted.begin(), nodeFullyLifted.end(),
+		      [&](std::pair<std::shared_ptr<Node>, bool> p){ return !p.second; })) {
+    std::cout << "Iteration: " << i << std::endl;
     i++;
     for(auto &it : nodeFullyLifted) it.second = false; //TODO: implement predecessors of node to more easily update.
-    for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = (it.second->isTop() || Lift(*it.first));
+    for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = (it.second->isTop() || Lift(it.first));
   }
   this->isSolved = true;
 }

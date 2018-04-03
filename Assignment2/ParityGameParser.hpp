@@ -18,7 +18,7 @@ namespace PGParser {
     infile >> nrOfNodesString;
     auto maxNodeId = std::stoi(nrOfNodesString.substr(0, nrOfNodesString.length()-1));
 
-    std::vector<Node*> nodes(maxNodeId + 1, NULL);
+    std::vector<std::shared_ptr<Node>> nodes(maxNodeId + 1, NULL);
     std::vector<std::string> successorList(maxNodeId + 1);
 
     std::string line;
@@ -38,12 +38,9 @@ namespace PGParser {
       token = strtok(NULL, lineDelim);
       name = (token == NULL) ? "" : std::string(token).substr(1, std::string(token).length() - 2);
       // Create node object
-      auto node = new Node(id, priority, owner == 0, name);
+      std::shared_ptr<Node> node(new Node(id, priority, owner == 0, name));
 
       maxPrio = std::max(priority, maxPrio);
-      //Nodes must have unique identifiers; delete nodes previously created under this ID
-      if(nodes[id] != NULL) delete(nodes[id]);
-
       nodes[id] = node;
       // Store successor list
       successorList[id] = successors;
