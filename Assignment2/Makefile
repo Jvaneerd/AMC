@@ -2,7 +2,7 @@ CXX=g++
 RM=rm -f
 CPPFLAGS=-std=c++14 -O3
 LDFLAGS=
-LDLIBS=
+LDLIBS=-fopenmp
 
 SRCS=main.cpp Node.cpp ParityGame.cpp Measure.cpp Solver.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))

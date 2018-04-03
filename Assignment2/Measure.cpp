@@ -50,7 +50,8 @@ Measure &Measure::operator=(const Measure &other) {
 bool Measure::operator==(const Measure &other) const {
   return ((this==&other) ||
 	  (this->isTop() && other.isTop()) ||
-	  (this->progressValues == other.progressValues));
+	  (!this->isTop() && !other.isTop() &&
+	   (this->progressValues == other.progressValues)));
 }
 
 bool Measure::operator!=(const Measure &other) const {
