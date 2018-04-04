@@ -17,7 +17,7 @@ public:
   void makeEqUpTo(int upTo, const Measure &other);
   bool tryIncrement(int upTo);
 
-  Measure &operator=(const Measure &other);
+  Measure &operator=(const Measure &other) = default;
 
   bool operator!=(const Measure &other) const;
   bool operator<(const Measure &other) const;

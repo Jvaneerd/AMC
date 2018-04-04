@@ -16,39 +16,41 @@ Measure PGSolver::findMaxMeasure(ParityGame &pg) {
 PGSolver::PGSolver(ParityGame &pg)
   : max(findMaxMeasure(pg)),
     isSolved(false),
-    nodes(pg.getNodes()) {
+    nodes(pg.getNodes()),
+    progMeasure(&max, max.getSize()),
+    liftMeasure(&max, max.getSize()) {
   for(auto &it : pg.getNodes()) measures.emplace_back(Measure(&this->max, this->max.getSize()));
 }
 
-Measure PGSolver::Prog(unsigned v, unsigned w) {
+void PGSolver::Prog(unsigned v, unsigned w) {
   auto prio = nodes[v].getPriority();
-  Measure res(&this->max, this->max.getSize());
-  res.makeEqUpTo(prio, measures[w]); //At this point, res ==prio w, so least res >=prio w is fulfilled
-  if((prio & 1) && !res.isTop()) { //prio & 1 means least significant bit is set, so prio is odd
-    if(!res.tryIncrement(prio)) res.makeTop(); //If res can't be incremented in the bounded range, then it must become top
+  progMeasure.makeEqUpTo(prio, measures[w]);
+//  Measure res(&this->max, this->max.getSize());
+//  res.makeEqUpTo(prio, measures[w]); //At this point, res ==prio w, so least res >=prio w is fulfilled
+  if((prio & 1) && !progMeasure.isTop()) { //prio & 1 means least significant bit is set, so prio is odd
+    if(!progMeasure.tryIncrement(prio)) progMeasure.makeTop(); //If res can't be incremented in the bounded range, then it must become top
   }
-  return res;
 }
 
 bool PGSolver::Lift(unsigned v) {
   auto &vnode = nodes[v];
   auto &vmeasure = measures[v];
-  Measure res(&max, max.getSize());
+//  Measure res(&max, max.getSize());
   if(vnode.IsEven()) {
-    res.makeTop(); //otherwise nothing will be lower than a fresh Measure
+    liftMeasure.makeTop(); //otherwise nothing will be lower than a fresh Measure
     for(auto &it : vnode.getSuccessors()) {
-      auto temp = Prog(v, it);
-      if(temp < res) res = temp; // < to denote min of all progs of successors
+      Prog(v, it);
+      if(progMeasure < liftMeasure) liftMeasure = std::move(progMeasure); // < to denote min of all progs of successors
     }
   }
   else {
     for(auto &it : vnode.getSuccessors()) {
-      auto temp = Prog(v, it);
-      if(temp > res) res = temp; // > to denote max of all progs of successors
+      Prog(v, it);
+      if(progMeasure > liftMeasure) liftMeasure = std::move(progMeasure); // > to denote max of all progs of successors
     }
   }
-  if(measures[v] != res) { //the result of all the progs is different, update v in progressMeasures
-    measures[v] = res;
+  if(measures[v] != liftMeasure) { //the result of all the progs is different, update v in progressMeasures
+    measures[v] = std::move(liftMeasure);
     return false; //Something's changed
   }
 

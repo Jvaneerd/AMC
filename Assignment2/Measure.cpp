@@ -18,33 +18,24 @@ Measure::Measure(std::vector<unsigned> maxM)
 }
 
 void Measure::makeEqUpTo(int upTo, const Measure &other) {
-  if(other.isTop()) {
-    this->top = true;
-    return;
-  }
-  for(int i = 0; i <= upTo; i++) {
-    this->progressValues[i] = other.progressValues[i];
-  }
+  this->top = other.isTop();
+  auto i = 1;
+  for(; i <= upTo && !this->top; i += 2) this->progressValues[i] = other.progressValues[i];
+  for(; i <= progressValues.size() && !this->top; i+=2) this->progressValues[i] = 0;
 }
 
 bool Measure::tryIncrement(int upTo) {
-  for(int i = upTo; i >= 0; i--) {
+  int i = (upTo % 2) ? upTo : upTo - 1;
+  for(int i = upTo; i >= 1; i-=2) {
     if(this->progressValues[i] < this->max->progressValues[i]) {
       this->progressValues[i]++;
-      for(int j = i+1; j < this->progressValues.size(); j++) {
+      for(int j = i+2; j <= this->progressValues.size(); j += 2) {
 	this->progressValues[j] = 0;
       }
       return true;
     }
   }
   return false;
-}
-
-Measure &Measure::operator=(const Measure &other) {
-  this->progressValues = other.progressValues;
-  this->top = other.top;
-  this->max = other.max;
-  return *this;
 }
 
 bool Measure::operator==(const Measure &other) const {
@@ -62,17 +53,18 @@ bool Measure::operator<(const Measure &other) const {
   if(other.isTop()) return true;
   else if(this->isTop()) return false; //unsure; we need to define something so that Top can be used as complement to
                                        //the lexicographic ordering, but this way Top < Top is valid
-  return std::lexicographical_compare(this->progressValues.begin(),
-				      this->progressValues.end(),
-				      other.progressValues.begin(),
-				      other.progressValues.end());
+  auto ret = true;
+  for(int i = 1; i <= this->progressValues.size() && ret; i += 2) ret &= this->progressValues[i] < other.progressValues[i];
+
+  return ret;
 }
 
 bool Measure::operator>(const Measure &other) const {
   if(this->isTop()) return true;
   else if(other.isTop()) return false;
+//  return !(*this < other);
   return !((*this == other) || //compare by value so operator== is called
-	   (*this < other)); //if neither == and < are true, then > must be true
+  	   (*this < other)); //if neither == and < are true, then > must be true
 }
 
 bool Measure::operator<=(const Measure &other) const {
