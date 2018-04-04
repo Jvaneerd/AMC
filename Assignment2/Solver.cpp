@@ -25,8 +25,6 @@ PGSolver::PGSolver(ParityGame &pg)
 void PGSolver::Prog(unsigned v, unsigned w) {
   auto prio = nodes[v].getPriority();
   progMeasure.makeEqUpTo(prio, measures[w]);
-//  Measure res(&this->max, this->max.getSize());
-//  res.makeEqUpTo(prio, measures[w]); //At this point, res ==prio w, so least res >=prio w is fulfilled
   if((prio & 1) && !progMeasure.isTop()) { //prio & 1 means least significant bit is set, so prio is odd
     if(!progMeasure.tryIncrement(prio)) progMeasure.makeTop(); //If res can't be incremented in the bounded range, then it must become top
   }
@@ -35,7 +33,6 @@ void PGSolver::Prog(unsigned v, unsigned w) {
 bool PGSolver::Lift(unsigned v) {
   auto &vnode = nodes[v];
   auto &vmeasure = measures[v];
-//  Measure res(&max, max.getSize());
   if(vnode.IsEven()) {
     liftMeasure.makeTop(); //otherwise nothing will be lower than a fresh Measure
     for(auto &it : vnode.getSuccessors()) {
