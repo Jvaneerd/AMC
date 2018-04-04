@@ -2,52 +2,53 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
-#include <map>
 #include "Solver.hpp"
 
-Measure PGSolver::findMaxMeasure(ParityGame *pg) const {
-  std::vector<unsigned> prioOccs(pg->getMaxPriority() + 1, 0); // +1 because priority 0 needs to be included
-  for( auto it : pg->getNodes()) {
-    auto p = it->getPriority();
+Measure PGSolver::findMaxMeasure(ParityGame &pg) {
+  std::vector<unsigned> prioOccs(pg.getMaxPriority() + 1, 0); // +1 because priority 0 needs to be included
+  for(auto &it : pg.getNodes()) {
+    auto p = it.getPriority();
     if(p & 1) prioOccs[p]++; //p & 1 means least significant bit is set, so value is odd
   }
   return Measure(prioOccs);
 }
 
-PGSolver::PGSolver(ParityGame *pg)
+PGSolver::PGSolver(ParityGame &pg)
   : max(findMaxMeasure(pg)),
-    pg(pg),
-    isSolved(false) {
-  for(auto it : pg->getNodes()) progressMeasures[it] = std::shared_ptr<Measure>(new Measure(this->max));
+    isSolved(false),
+    nodes(pg.getNodes()) {
+  for(auto &it : pg.getNodes()) measures.emplace_back(Measure(&this->max, this->max.getSize()));
 }
 
-std::shared_ptr<Measure> PGSolver::Prog(std::shared_ptr<Node> v, std::shared_ptr<Node> w) {
-  auto prio = v->getPriority();
-  std::shared_ptr<Measure> res(new Measure(this->max));
-  res->makeEqUpTo(prio, *(this->progressMeasures[w])); //At this point, res ==prio w, so least res >=prio w is fulfilled
-  if((prio & 1) && !res->isTop()) { //prio & 1 means least significant bit is set, so prio is odd
-    if(!res->tryIncrement(prio)) res->makeTop(); //If res can't be incremented in the bounded range, then it must become top
+Measure PGSolver::Prog(unsigned v, unsigned w) {
+  auto prio = nodes[v].getPriority();
+  Measure res(&this->max, this->max.getSize());
+  res.makeEqUpTo(prio, measures[w]); //At this point, res ==prio w, so least res >=prio w is fulfilled
+  if((prio & 1) && !res.isTop()) { //prio & 1 means least significant bit is set, so prio is odd
+    if(!res.tryIncrement(prio)) res.makeTop(); //If res can't be incremented in the bounded range, then it must become top
   }
   return res;
 }
 
-bool PGSolver::Lift(std::shared_ptr<Node> v) {
-  std::shared_ptr<Measure> res(new Measure(this->max));
-  if(v->IsEven()) {
-    res->makeTop(); //otherwise nothing will be lower than a fresh Measure
-    for(auto it : v->getSuccessors()) {
+bool PGSolver::Lift(unsigned v) {
+  auto &vnode = nodes[v];
+  auto &vmeasure = measures[v];
+  Measure res(&max, max.getSize());
+  if(vnode.IsEven()) {
+    res.makeTop(); //otherwise nothing will be lower than a fresh Measure
+    for(auto &it : vnode.getSuccessors()) {
       auto temp = Prog(v, it);
-      if(*temp < *res) res = temp; // < to denote min of all progs of successors
+      if(temp < res) res = temp; // < to denote min of all progs of successors
     }
   }
   else {
-    for(auto it : v->getSuccessors()) {
+    for(auto &it : vnode.getSuccessors()) {
       auto temp = Prog(v, it);
-      if(*temp > *res) res = temp; // > to denote max of all progs of successors
+      if(temp > res) res = temp; // > to denote max of all progs of successors
     }
   }
-  if(*progressMeasures[v] != *res) { //the result of all the progs is different, update v in progressMeasures
-    progressMeasures[v] = res;
+  if(measures[v] != res) { //the result of all the progs is different, update v in progressMeasures
+    measures[v] = res;
     return false; //Something's changed
   }
 
@@ -55,19 +56,17 @@ bool PGSolver::Lift(std::shared_ptr<Node> v) {
 }
 
 void PGSolver::SolvePG() {
-//  std::cout << "Max measure: " << this->max.toString() << std::endl;
-  std::map<std::shared_ptr<Node>, bool> nodeFullyLifted;
-  for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = false;
-  while(std::count_if(nodeFullyLifted.begin(), nodeFullyLifted.end(),
-		      [&](std::pair<std::shared_ptr<Node>, bool> p){ return !p.second; })) {
-    for(auto &it : nodeFullyLifted) it.second = false; //TODO: implement predecessors of node to more easily update.
-    for(auto &it : this->progressMeasures) nodeFullyLifted[it.first] = (it.second->isTop() || Lift(it.first));
+  std::cout << "Max measure: " << max.toString() << std::endl;
+  std::vector<bool> nodeFullyLifted(nodes.size(), false);
+  while(std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false)) {
+    for(auto it : nodeFullyLifted) it = false; //TODO: implement predecessors of node to more easily update. -> new strategy
 
-/*#pragma omp parallel for
-    for(auto it = this->progressMeasures.begin(); it != this->progressMeasures.end(); it++) {
-      nodeFullyLifted[it->first] = (it->second->isTop() || Lift(it->first));
-      }*/
+    for(auto &it : this->nodes) {
+      auto id = it.getId();
+      nodeFullyLifted[id] = measures[id].isTop() || Lift(id);
+    }
   }
+  
   this->isSolved = true;
 }
 
@@ -77,17 +76,13 @@ std::string PGSolver::GetPGResult() {
 //    std::vector<int> even;
 //    std::vector<int> odd;
     std::ostringstream ss;
-    for(auto &it : this->progressMeasures) {
-      if(it.first->getId() == 0) {
-	ss << it.first->toString() << " was won by player: ";
-	if(it.second->isTop()) ss << ">ODD<";
-	else ss << ">EVEN<";
-	ss << std::endl;
-	break;
-      }
-      // if(it.second->isTop()) odd.emplace_back(it.first->getId());
-      // else even.emplace_back(it.first->getId());
-    }
+    ss << nodes[0].toString() << " was won by player: ";
+    if(measures[0].isTop()) ss << ">ODD<";
+    else ss << ">EVEN<";
+    // for(auto &it : this->nodes) {
+    //   if(measures[it.getId()].isTop()) odd.emplace_back(it.getId());
+    //   else even.emplace_back(it.getId());
+    // }
     // ss << "Nodes won by player even:\n";
     // if(even.size() > 0) {
     //   std::sort(even.begin(), even.end());

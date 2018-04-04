@@ -16,11 +16,9 @@ int main(int argc, char *argv[]) {
       return -1;
     }
   }
-  ParityGame* pg = PGParser::pgParse(infile);
-  PGSolver* sv = new PGSolver(pg);
-  sv->SolvePG(); // Blocking until PG has been solved
-  std::cout << "Parity game solved in <interesting metric>, results:\n" << sv->GetPGResult() << std::endl;
-  delete(pg);
-  delete(sv);
+  auto pg = PGParser::pgParse(infile);
+  PGSolver sv(pg);
+  sv.SolvePG(); // Blocking until PG has been solved
+  std::cout << "Parity game solved in <interesting metric>, results:\n" << sv.GetPGResult() << std::endl;
   return 0;
 }

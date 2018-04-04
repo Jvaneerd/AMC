@@ -6,7 +6,7 @@
 #include "ParityGame.hpp"
 
 namespace PGParser {
-  inline ParityGame* pgParse(std::ifstream &infile) {
+  inline ParityGame pgParse(std::ifstream &infile) {
     int id, priority, owner;
     std::string successors, name;
     int maxPrio = 0;
@@ -18,15 +18,15 @@ namespace PGParser {
     infile >> nrOfNodesString;
     auto maxNodeId = std::stoi(nrOfNodesString.substr(0, nrOfNodesString.length()-1));
 
-    std::vector<std::shared_ptr<Node>> nodes(maxNodeId + 1, NULL);
-    std::vector<std::string> successorList(maxNodeId + 1);
+    std::vector<Node> nodes;
+//    nodes.reserve(maxNodeId + 1);
 
     std::string line;
-    const char* lineDelim = " ;";
+    auto lineDelim = " ;";
+    auto succDelim = ",";
     char * token;
 
     std::getline(infile, line); //Finalize reading first line, ugly but works
-
     // Parse nodes
     while (std::getline(infile, line)) //infile >> id >> priority >> owner >> successors >> name)
     {
@@ -38,31 +38,28 @@ namespace PGParser {
       token = strtok(NULL, lineDelim);
       name = (token == NULL) ? "" : std::string(token).substr(1, std::string(token).length() - 2);
       // Create node object
-      std::shared_ptr<Node> node(new Node(id, priority, owner == 0, name));
-
+      Node node(id, priority, owner == 0, name);
       maxPrio = std::max(priority, maxPrio);
-      nodes[id] = node;
       // Store successor list
-      successorList[id] = successors;
-      delete(dup);
-    }
-    // Create parity game
-    auto parityGame = new ParityGame(nodes, maxPrio);
-
-    auto succDelim = ",";
-    // Add successors
-    for (int i = 0; i <= maxNodeId; i++) {
-      auto src = parityGame->getNode(i);
-      auto dup = strdup(successorList[i].c_str());
+      dup = strdup(successors.c_str());
       token = strtok(dup, succDelim);
       while (token != NULL) {
-	auto dest = parityGame->getNode(std::stoi(token));
-	src->addSuccessor(dest);
-
+	auto dest = std::stoi(token);
+	node.addSuccessor(dest);
 	token = strtok(NULL, succDelim);
       }
+      nodes.emplace_back(std::move(node));
+//      nodes[id] = std::move(node);
       delete(dup);
     }
+
+    //Set predecessors
+    for(auto &it : nodes) 
+      for(auto &sit : it.getSuccessors()) 
+	nodes[sit].addPredecessor(it.getId());
+    
+    // Create parity game
+    ParityGame parityGame(nodes, maxPrio);
 
     return parityGame;
   }

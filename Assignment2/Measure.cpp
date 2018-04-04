@@ -2,10 +2,10 @@
 #include <iostream>
 #include "Measure.hpp"
 
-Measure::Measure(const Measure &M)
-  : progressValues(M.getSize(), 0),
+Measure::Measure(const Measure *M, size_t s)
+  : progressValues(s, 0),
     top(false),
-    max(&M) {
+    max(M) {
 }
 
 Measure::Measure(std::vector<unsigned> maxM)
@@ -19,7 +19,7 @@ Measure::Measure(std::vector<unsigned> maxM)
 
 void Measure::makeEqUpTo(int upTo, const Measure &other) {
   if(other.isTop()) {
-    this->makeTop();
+    this->top = true;
     return;
   }
   for(int i = 0; i <= upTo; i++) {

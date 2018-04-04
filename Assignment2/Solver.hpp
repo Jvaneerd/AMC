@@ -1,23 +1,17 @@
 #include "ParityGame.hpp"
 #include "Measure.hpp"
-#include <unordered_map>
-#include <map>
-#include <memory>
 
 class PGSolver {
 private:
   bool isSolved;
   const Measure max;
-  ParityGame *pg;
-  //unordered_map is a hash table, so access times are amortized constant!
-  std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<Measure>> progressMeasures;
-  //map has O(log n) access times
-//  std::map<std::shared_ptr<Node>, std::shared_ptr<Measure>> progressMeasures;
-  Measure findMaxMeasure(ParityGame *pg) const;
-  std::shared_ptr<Measure> Prog(std::shared_ptr<Node> v, std::shared_ptr<Node> w);
-  bool Lift(std::shared_ptr<Node> v);
+  std::vector<Node> nodes;
+  std::vector<Measure> measures;
+  Measure findMaxMeasure(ParityGame &pg);
+  Measure Prog(unsigned v, unsigned w);
+  bool Lift(unsigned v);
 public:
-  PGSolver(ParityGame *pg);
+  PGSolver(ParityGame &pg);
   void SolvePG();
   std::string GetPGResult();
 };

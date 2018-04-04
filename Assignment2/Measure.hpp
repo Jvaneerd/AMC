@@ -7,7 +7,8 @@ private:
   bool top;
   const Measure *max;
 public:
-  Measure(const Measure &M);
+  Measure(Measure &&M) = default;
+  Measure(const Measure *M, size_t s);
   Measure(std::vector<unsigned> maxM);
   inline bool isTop() const { return this->top; }
   inline void makeTop() { this->top = true; }
