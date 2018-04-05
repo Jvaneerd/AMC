@@ -57,7 +57,10 @@ bool PGSolver::Lift(unsigned v) {
 void PGSolver::SolvePG() {
   std::cout << "Max measure: " << max.toString() << std::endl;
   std::vector<bool> nodeFullyLifted(nodes.size(), false);
+  int i = 0;
   while(std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false)) {
+    // std::cout << "Iteration " << i++ << std::endl;
+    // std::cout << "count: " << std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false) << std::endl;
     for(auto it : nodeFullyLifted) it = false; //TODO: implement predecessors of node to more easily update. -> new strategy
 
     for(auto &it : this->nodes) {

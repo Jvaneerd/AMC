@@ -19,7 +19,7 @@ namespace PGParser {
     auto maxNodeId = std::stoi(nrOfNodesString.substr(0, nrOfNodesString.length()-1));
 
     std::vector<Node> nodes;
-//    nodes.reserve(maxNodeId + 1);
+    nodes.reserve(maxNodeId + 1);
 
     std::string line;
     auto lineDelim = " ;";
@@ -48,10 +48,14 @@ namespace PGParser {
 	node.addSuccessor(dest);
 	token = strtok(NULL, succDelim);
       }
-      nodes.emplace_back(std::move(node));
-//      nodes[id] = std::move(node);
+      auto it = std::find_if(nodes.begin(), nodes.end(), [&](auto &elem){ return elem.getId() == id; });
+      if(it != nodes.end()) {
+	*it = node;
+      } else nodes.emplace_back(std::move(node));
       delete(dup);
     }
+
+    std::sort(nodes.begin(), nodes.end(), [](auto &n1, auto &n2){ return n1.getId() < n2.getId(); });
 
     //Set predecessors
     for(auto &it : nodes) 

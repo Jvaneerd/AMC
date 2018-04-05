@@ -21,7 +21,7 @@ void Measure::makeEqUpTo(int upTo, const Measure &other) {
   this->top = other.isTop();
   auto i = 1;
   for(; i <= upTo && !this->top; i += 2) this->progressValues[i] = other.progressValues[i];
-  for(; i <= progressValues.size() && !this->top; i+=2) this->progressValues[i] = 0;
+  for(; i < progressValues.size() && !this->top; i+=2) this->progressValues[i] = 0;
 }
 
 bool Measure::tryIncrement(int upTo) {
@@ -34,7 +34,7 @@ bool Measure::tryIncrement(int upTo) {
       break;
     }
   }
-  if(possible) for(int j = i+2; j <= this->progressValues.size(); j += 2) this->progressValues[j] = 0;
+  if(possible) for(int j = i+2; j < this->progressValues.size(); j += 2) this->progressValues[j] = 0;
   return possible;
 }
 
@@ -54,7 +54,7 @@ bool Measure::operator<(const Measure &other) const {
   else if(this->isTop()) return false; //unsure; we need to define something so that Top can be used as complement to
                                        //the lexicographic ordering, but this way Top < Top is valid
   auto ret = true;
-  for(int i = 1; i <= this->progressValues.size() && ret; i += 2) ret &= this->progressValues[i] < other.progressValues[i];
+  for(int i = 1; i < this->progressValues.size() && ret; i += 2) ret &= this->progressValues[i] < other.progressValues[i];
 
   return ret;
 }
