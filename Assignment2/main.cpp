@@ -10,13 +10,14 @@ int main(int argc, char *argv[]) {
     return -1;
   } else {
     std::string fileName = argv[1]; //File name is "2nd" argument, as argv[0] always contains executable file name
-    infile.open(fileName);
+	  infile.open(fileName);
     if(infile.fail()) {
       std::cout << "Could not open file: " << fileName << std::endl;
       return -1;
     }
   }
   auto pg = PGParser::pgParse(infile);
+
 
   PGSolver sv(pg);
   sv.SolvePG(); // Blocking until PG has been solved
@@ -28,7 +29,26 @@ int main(int argc, char *argv[]) {
 
   PGSolver svSelfLoops(pg);
   svSelfLoops.SolvePGWithSelfLoops(); // Blocking until PG has been solved
-  std::cout << "Parity game solved smart in " << svSelfLoops.GetNumberOfLifts() << " lifts, results:\n" << svSelfLoops.GetPGResult() << std::endl;
+  std::cout << "Parity game solved self loops in " << svSelfLoops.GetNumberOfLifts() << " lifts, results:\n" << svSelfLoops.GetPGResult() << std::endl;
   
+  PGSolver svRecursive(pg);
+  svRecursive.SolveRecursive(); // Blocking until PG has been solved
+  std::cout << "Parity game solved recursive in " << svRecursive.GetNumberOfLifts() << " lifts, results:\n" << svRecursive.GetPGResult() << std::endl;
+
+  bool equalResults = true;
+  for (auto &it : pg.getNodes()) {
+	  if (sv.measures[it.getId()] != svRecursive.measures[it.getId()]) {
+		  equalResults = false;
+		  break;
+	  }
+  }
+
+  if (equalResults) {
+	  std::cout << "Recursive algorithm results EQUAL to naive algorithm results";
+  }
+  else {
+	  std::cout << "Recursive algorithm results DIFFERENT from naive algorithm results";
+  }
+
   return 0;
 }

@@ -44,6 +44,7 @@ bool PGSolver::Lift(unsigned v) {
     }
   }
   else {
+	liftMeasure.makeEqUpTo(max.getSize()-1, vmeasure);
     for(auto &it : vnode.getSuccessors()) {
       Prog(v, it);
       if(progMeasure > liftMeasure) liftMeasure = std::move(progMeasure); // > to denote max of all progs of successors
@@ -106,7 +107,7 @@ void PGSolver::SolvePGWithSmartQueue() {
 }
 
 /*
-Same algorithm as ..., except that at the start all nodes with self-loops are found that can immediately be set to TOP.
+Same algorithm as previous, except that at the start all nodes with self-loops are found that can immediately be set to TOP.
 No difference in lifts on dining/cache test cases compared to other algorithm.
 Small difference in lifts on the example from the SPM lecture.
 */
@@ -131,13 +132,62 @@ void PGSolver::SolvePGWithSelfLoops() {
 
 		if (!measures[id].isTop() && !Lift(id)) {
 			for (auto it : node.getPredecessors()) {
-				if(!measures[it].isTop()) queue.insert(nodes[it]);
+				if (!measures[it].isTop()) queue.insert(nodes[it]);
 			}
 		}
 	}
 
 	this->isSolved = true;
 }
+
+
+std::vector<unsigned> parents;
+
+/*
+Recursively solve, by starting from a node and then solving its predecessors
+Also looks for cycles and solves those first when found
+When no useful cycles are found, algorithm uses more lifts than other algorithms
+However, when good cycles are found, #lifts may drastically decrease
+For example: dining_5.invariantly_inevitably_eat.gm
+*/
+void PGSolver::SolveRecursive() {
+	for (auto it : this->nodes) {
+		SolveNode(it.getId());
+	}
+	this->isSolved = true;
+}
+
+bool PGSolver::SolveCycle() {
+	auto i = 0;
+	bool changed = false;
+	while (!measures[parents[i]].isTop() && !Lift(parents[i])) {
+		i++;
+		i %= parents.size();
+		changed = true;
+	}
+	return changed;
+}
+
+void PGSolver::SolveNode(unsigned id) {
+	bool cycleSolved = false;
+	if (!parents.empty() && id == parents[0]) {
+		// We have made a cycle.
+		// Solve cycle first, might lead to easy TOP.
+		cycleSolved = SolveCycle();
+	}
+
+	parents.push_back(id);
+	if (cycleSolved || (!measures[id].isTop() && !Lift(id))) {
+		Node node = nodes[id];
+		for (auto it : node.getPredecessors()) {
+			SolveNode(it);
+		}
+	}
+	parents.pop_back();
+
+}
+
+
 
 unsigned PGSolver::GetNumberOfLifts()
 {
@@ -157,7 +207,8 @@ std::string PGSolver::GetPGResult() {
 		  if (measures[it.getId()].isTop()) ss << ">ODD<";
 		  else ss << ">EVEN<";
 		  ss << std::endl;
-	  }*/
+	  }
+	  */
 
 	  ss << nodes[0].toString() << " was won by player: ";
 	  if (measures[0].isTop()) ss << ">ODD<";
@@ -182,4 +233,5 @@ std::string PGSolver::GetPGResult() {
     // }
     return ss.str();
   }
+
 }

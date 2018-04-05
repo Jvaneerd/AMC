@@ -7,7 +7,7 @@ private:
   unsigned numberOfLifts;
   const Measure max;
   std::vector<Node> nodes;
-  std::vector<Measure> measures;
+
   Measure progMeasure;
   Measure liftMeasure;
   Measure findMaxMeasure(ParityGame &pg);
@@ -15,7 +15,11 @@ private:
   bool Lift(unsigned v);
 public:
   PGSolver(ParityGame &pg);
+  std::vector<Measure> measures;
   void SolvePG();
+  void SolveNode(unsigned id);
+  bool SolveCycle();
+  void SolveRecursive();
   void SolvePGWithSmartQueue();
   void SolvePGWithSelfLoops();
   unsigned GetNumberOfLifts();
