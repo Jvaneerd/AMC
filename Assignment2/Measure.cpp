@@ -25,17 +25,17 @@ void Measure::makeEqUpTo(int upTo, const Measure &other) {
 }
 
 bool Measure::tryIncrement(int upTo) {
-  int i = (upTo % 2) ? upTo : upTo - 1;
+  bool possible = false;
+  int i = upTo - 1 + ( upTo % 2);
   for(int i = upTo; i >= 1; i-=2) {
     if(this->progressValues[i] < this->max->progressValues[i]) {
       this->progressValues[i]++;
-      for(int j = i+2; j <= this->progressValues.size(); j += 2) {
-	this->progressValues[j] = 0;
-      }
-      return true;
+      possible = true;
+      break;
     }
   }
-  return false;
+  if(possible) for(int j = i+2; j <= this->progressValues.size(); j += 2) this->progressValues[j] = 0;
+  return possible;
 }
 
 bool Measure::operator==(const Measure &other) const {
