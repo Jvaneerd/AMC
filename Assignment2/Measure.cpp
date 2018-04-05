@@ -53,8 +53,8 @@ bool Measure::operator<(const Measure &other) const {
   if(other.isTop()) return true;
   else if(this->isTop()) return false; //unsure; we need to define something so that Top can be used as complement to
                                        //the lexicographic ordering, but this way Top < Top is valid
-  auto ret = true;
-  for(int i = 1; i < this->progressValues.size() && ret; i += 2) ret &= this->progressValues[i] < other.progressValues[i];
+  auto ret = false;
+  for (int i = 1; i < this->progressValues.size() && !ret; i += 2) ret = ret || this->progressValues[i] < other.progressValues[i];
 
   return ret;
 }
