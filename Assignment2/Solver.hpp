@@ -4,6 +4,7 @@
 class PGSolver {
 private:
   bool isSolved;
+  unsigned numberOfLifts;
   const Measure max;
   std::vector<Node> nodes;
   std::vector<Measure> measures;
@@ -15,5 +16,8 @@ private:
 public:
   PGSolver(ParityGame &pg);
   void SolvePG();
+  void SolvePGWithSmartQueue();
+  void SolvePGWithSelfLoops();
+  unsigned GetNumberOfLifts();
   std::string GetPGResult();
 };

@@ -17,8 +17,18 @@ int main(int argc, char *argv[]) {
     }
   }
   auto pg = PGParser::pgParse(infile);
+
   PGSolver sv(pg);
   sv.SolvePG(); // Blocking until PG has been solved
-  std::cout << "Parity game solved in <interesting metric>, results:\n" << sv.GetPGResult() << std::endl;
+  std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult() << std::endl;
+
+  PGSolver svSmartQueue(pg);
+  svSmartQueue.SolvePGWithSmartQueue(); // Blocking until PG has been solved
+  std::cout << "Parity game solved smart in " << svSmartQueue.GetNumberOfLifts() << " lifts, results:\n" << svSmartQueue.GetPGResult() << std::endl;
+
+  PGSolver svSelfLoops(pg);
+  svSelfLoops.SolvePGWithSelfLoops(); // Blocking until PG has been solved
+  std::cout << "Parity game solved smart in " << svSelfLoops.GetNumberOfLifts() << " lifts, results:\n" << svSelfLoops.GetPGResult() << std::endl;
+  
   return 0;
 }

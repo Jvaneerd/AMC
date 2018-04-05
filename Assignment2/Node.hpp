@@ -28,8 +28,12 @@ public:
   inline int getId() { return id; }
   inline bool IsEven() { return isEven; }
   inline std::vector<unsigned> getSuccessors() { return successors; }
+  inline std::vector<unsigned> getPredecessors() { return predecessors; }
   inline void addSuccessor(unsigned suc) { successors.emplace_back(suc); }
   inline void addPredecessor(unsigned pre) { predecessors.emplace_back(pre); }
   std::string toString();
+
+  bool operator<(const Node &other) const;
+  bool operator>(const Node &other) const;
 };
 

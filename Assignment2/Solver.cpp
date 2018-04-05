@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
+#include <set>
 #include "Solver.hpp"
 
 Measure PGSolver::findMaxMeasure(ParityGame &pg) {
@@ -15,6 +16,7 @@ Measure PGSolver::findMaxMeasure(ParityGame &pg) {
 
 PGSolver::PGSolver(ParityGame &pg)
   : max(findMaxMeasure(pg)),
+	numberOfLifts(0),
     isSolved(false),
     nodes(pg.getNodes()),
     progMeasure(&max, max.getSize()),
@@ -31,6 +33,7 @@ void PGSolver::Prog(unsigned v, unsigned w) {
 }
 
 bool PGSolver::Lift(unsigned v) {
+	numberOfLifts++;
   auto &vnode = nodes[v];
   auto &vmeasure = measures[v];
   if(vnode.IsEven()) {
@@ -55,32 +58,112 @@ bool PGSolver::Lift(unsigned v) {
 }
 
 void PGSolver::SolvePG() {
-  std::cout << "Max measure: " << max.toString() << std::endl;
-  std::vector<bool> nodeFullyLifted(nodes.size(), false);
-  int i = 0;
-  while(std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false)) {
-    // std::cout << "Iteration " << i++ << std::endl;
-    // std::cout << "count: " << std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false) << std::endl;
-    for(auto it : nodeFullyLifted) it = false; //TODO: implement predecessors of node to more easily update. -> new strategy
+	std::cout << "Max measure: " << max.toString() << std::endl;
+	std::vector<bool> nodeFullyLifted(nodes.size(), false);
 
-    for(auto &it : this->nodes) {
-      auto id = it.getId();
-      nodeFullyLifted[id] = measures[id].isTop() || Lift(id);
-    }
-  }
-  
-  this->isSolved = true;
+	while (std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false)) {
+		// std::cout << "Iteration " << i++ << std::endl;
+		// std::cout << "count: " << std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false) << std::endl;
+		for (auto it : nodeFullyLifted) it = false; //TODO: implement predecessors of node to more easily update. -> new strategy
+
+		for (auto &it : this->nodes) {
+			auto id = it.getId();
+			nodeFullyLifted[id] = measures[id].isTop() || Lift(id);
+		}
+	}
+
+	this->isSolved = true;
+}
+
+/*
+Solve parity game by utilizing a queue that is ordered from low to high according to the following rules:
+1) Node with odd priority < Node with even priority
+2) Node owned by odd < Node owned by even
+3) Node.priority
+4) Node.Id
+
+At the start all nodes are added to the queue.
+When a node is lifted, remove it from the queue.
+When a node is lifted with success (the measure has changed) add its predecessors to the queue (if they are not TOP already)
+*/
+void PGSolver::SolvePGWithSmartQueue() {
+	std::set<Node> queue;
+	for (auto &it : this->nodes) queue.insert(it);
+
+	while (!queue.empty()) {
+		auto node = *queue.begin();
+		auto id = node.getId();
+		queue.erase(node);
+
+		if (!measures[id].isTop() && !Lift(id)) {
+			for (auto it : node.getPredecessors()) {
+				if (!measures[it].isTop()) queue.insert(nodes[it]);
+			}
+		}
+	}
+
+	this->isSolved = true;
+}
+
+/*
+Same algorithm as ..., except that at the start all nodes with self-loops are found that can immediately be set to TOP.
+No difference in lifts on dining/cache test cases compared to other algorithm.
+Small difference in lifts on the example from the SPM lecture.
+*/
+void PGSolver::SolvePGWithSelfLoops() {
+	std::set<Node> queue;
+	for (auto &it : this->nodes) queue.insert(it);
+
+	// Find all nodes owned by odd with an odd priority and a self loop.
+	// They can immediately be set to TOP.
+	for (auto &it : this->nodes) {
+		if (!it.IsEven() && it.getPriority() & 1) {
+			auto pred = it.getPredecessors();
+			auto find = std::find(pred.begin(), pred.end(), it.getId());
+			if (find != pred.end()) measures[it.getId()].makeTop();
+		}
+	}
+
+	while (!queue.empty()) {
+		auto node = *queue.begin();
+		auto id = node.getId();
+		queue.erase(node);
+
+		if (!measures[id].isTop() && !Lift(id)) {
+			for (auto it : node.getPredecessors()) {
+				if(!measures[it].isTop()) queue.insert(nodes[it]);
+			}
+		}
+	}
+
+	this->isSolved = true;
+}
+
+unsigned PGSolver::GetNumberOfLifts()
+{
+	return numberOfLifts;
 }
 
 std::string PGSolver::GetPGResult() {
   if(!this->isSolved) return "PG not solved yet...\n";
   else {
-//    std::vector<int> even;
-//    std::vector<int> odd;
-    std::ostringstream ss;
-    ss << nodes[0].toString() << " was won by player: ";
-    if(measures[0].isTop()) ss << ">ODD<";
-    else ss << ">EVEN<";
+	  //    std::vector<int> even;
+	  //    std::vector<int> odd;
+	  std::ostringstream ss;
+
+	  /*
+	  for (auto &it : this->nodes) {
+		  ss << it.toString() << " was won by player: ";
+		  if (measures[it.getId()].isTop()) ss << ">ODD<";
+		  else ss << ">EVEN<";
+		  ss << std::endl;
+	  }*/
+
+	  ss << nodes[0].toString() << " was won by player: ";
+	  if (measures[0].isTop()) ss << ">ODD<";
+	  else ss << ">EVEN<";
+	  ss << std::endl;
+
     // for(auto &it : this->nodes) {
     //   if(measures[it.getId()].isTop()) odd.emplace_back(it.getId());
     //   else even.emplace_back(it.getId());
