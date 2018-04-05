@@ -62,9 +62,10 @@ bool Measure::operator<(const Measure &other) const {
 bool Measure::operator>(const Measure &other) const {
   if(this->isTop()) return true;
   else if(other.isTop()) return false;
-//  return !(*this < other);
-  return !((*this == other) || //compare by value so operator== is called
-  	   (*this < other)); //if neither == and < are true, then > must be true
+  return !(*this < other); // For the algorithm's purposes, !< is good enough.
+                           // Saves a LOT of time if operator== doesn't have to be called
+  // return !((*this == other) || //compare by value so operator== is called
+  // 	   (*this < other)); //if neither == and < are true, then > must be true
 }
 
 bool Measure::operator<=(const Measure &other) const {
