@@ -18,7 +18,7 @@ public:
   std::vector<Measure> measures;
   void SolvePG();
   void SolveNode(unsigned id);
-  bool SolveCycle();
+  bool SolveCycle(unsigned loc);
   void SolveRecursive();
   void SolvePGWithSmartQueue();
   void SolvePGWithSelfLoops();

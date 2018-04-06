@@ -152,42 +152,39 @@ For example: dining_5.invariantly_inevitably_eat.gm
 */
 void PGSolver::SolveRecursive() {
 	for (auto it : this->nodes) {
-		SolveNode(it.getId());
+		if(!measures[it.getId()].isTop()) SolveNode(it.getId());
 	}
 	this->isSolved = true;
 }
 
-bool PGSolver::SolveCycle() {
-	auto i = 0;
-	bool changed = false;
-	while (!measures[parents[i]].isTop() && !Lift(parents[i])) {
-		i++;
-		i %= parents.size();
-		changed = true;
+bool PGSolver::SolveCycle(unsigned startIndex) {
+	bool startChanged = !Lift(parents[startIndex]);
+	bool allChanged = startChanged;
+	for (int i = startIndex + 1; i < parents.size(); i++) allChanged &= !Lift(parents[i]);
+
+	// If the measure of all nodes in the cycle changed, it will eventually be lifted to top, hence make everything in cycle TOP
+	if (allChanged) {
+		for (int i = startIndex; i < parents.size(); i++) measures[parents[i]].makeTop();
 	}
-	return changed;
+	return startChanged;
 }
 
 void PGSolver::SolveNode(unsigned id) {
-	bool cycleSolved = false;
-	if (!parents.empty() && id == parents[0]) {
-		// We have made a cycle.
-		// Solve cycle first, might lead to easy TOP.
-		cycleSolved = SolveCycle();
+	bool startChanged = false;
+
+	unsigned startIndex = std::distance(parents.begin(), std::find(parents.begin(), parents.end(), id));
+	if (startIndex < parents.size()) {
+		startChanged = SolveCycle(startIndex);
 	}
 
 	parents.push_back(id);
-	if (cycleSolved || (!measures[id].isTop() && !Lift(id))) {
-		Node node = nodes[id];
-		for (auto it : node.getPredecessors()) {
-			SolveNode(it);
+	if (startChanged || !Lift(id)) {
+		for (auto it : nodes[id].getPredecessors()) {
+			if(!measures[it].isTop()) SolveNode(it);
 		}
 	}
 	parents.pop_back();
-
 }
-
-
 
 unsigned PGSolver::GetNumberOfLifts()
 {
