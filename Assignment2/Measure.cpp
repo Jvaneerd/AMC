@@ -21,7 +21,7 @@ void Measure::makeEqUpTo(int upTo, const Measure &other) {
   this->top = other.isTop();
   auto i = 1;
   for(; i <= upTo && !this->top; i += 2) this->progressValues[i] = other.progressValues[i];
-  for(; i < progressValues.size() && !this->top; i+=2) this->progressValues[i] = 0;
+  for(; i < progressValues.size(); i+=2) this->progressValues[i] = 0;
 }
 
 bool Measure::tryIncrement(int upTo) {

@@ -45,14 +45,14 @@ bool PGSolver::Lift(unsigned v) {
     }
   }
   else {
-	liftMeasure.makeEqUpTo(max.getSize()-1, vmeasure);
+    liftMeasure.makeEqUpTo(max.getSize()-1, vmeasure);
     for(auto &it : vnode.getSuccessors()) {
       Prog(v, it);
       if(progMeasure > liftMeasure) liftMeasure = std::move(progMeasure); // > to denote max of all progs of successors
     }
   }
   if(measures[v] != liftMeasure) { //the result of all the progs is different, update v in progressMeasures
-    measures[v] = std::move(liftMeasure);
+    measures[v] = liftMeasure;
     return false; //Something's changed
   }
 
@@ -156,47 +156,47 @@ void PGSolver::SolveRecursive() {
   for (auto &it : this->nodes)  stack.push(it.getId());
 
   while (!stack.empty()) {
-	  // Pop top node
-	  auto id = stack.top();
-	  stack.pop();
-	  
-	  // Decrease number of preds
-	  if (!parents.empty()) {
-		  unsigned last = numberOfPreds.back();
-		  numberOfPreds.pop_back();
-		  numberOfPreds.emplace_back(last - 1);
-	  }
-
-	  auto preds = 0;
-	  if (!measures[id].isTop()) {
-		  // Check for cycles
-		  bool startChanged = false;
-		  unsigned startIndex = std::distance(parents.begin(), std::find(parents.begin(), parents.end(), id));
-		  if (startIndex < parents.size()) {
-			  startChanged = SolveCycle(startIndex);
-		  }
-
-		  // Try to lift
-		  if (startChanged || !Lift(id)) {
-			  // Add predecessors to stack if lift was successful
-			  for (auto &it : nodes[id].getPredecessors()) {
-				  stack.push(it);
-				  preds++;
-			  }
-		  }
-	  }
-	  // If predecessors where added to stack, update parents and predecessor count lists
-	  if (preds > 0) {
-		  parents.emplace_back(id);
-		  numberOfPreds.emplace_back(preds);
-	  }
-	  // If no predecessors where added, remove all parents of which all predecessors are handled
-	  else {
-		  while (!parents.empty() && numberOfPreds.back() == 0) {
-			  numberOfPreds.pop_back();
-			  parents.pop_back();
-		  }
-	  }
+    // Pop top node
+    auto id = stack.top();
+    stack.pop();
+    
+    // Decrease number of preds
+    if (!parents.empty()) {
+      unsigned last = numberOfPreds.back();
+      numberOfPreds.pop_back();
+      numberOfPreds.emplace_back(last - 1);
+    }
+    
+    auto preds = 0;
+    if (!measures[id].isTop()) {
+      // Check for cycles
+      bool startChanged = false;
+      unsigned startIndex = std::distance(parents.begin(), std::find(parents.begin(), parents.end(), id));
+      if (startIndex < parents.size()) {
+	startChanged = SolveCycle(startIndex);
+      }
+      
+      // Try to lift
+      if (startChanged || !Lift(id)) {
+	// Add predecessors to stack if lift was successful
+	for (auto &it : nodes[id].getPredecessors()) {
+	  stack.push(it);
+	  preds++;
+	}
+      }
+    }
+    // If predecessors where added to stack, update parents and predecessor count lists
+    if (preds > 0) {
+      parents.emplace_back(id);
+      numberOfPreds.emplace_back(preds);
+    }
+    // If no predecessors where added, remove all parents of which all predecessors are handled
+    else {
+      while (!parents.empty() && numberOfPreds.back() == 0) {
+	numberOfPreds.pop_back();
+	parents.pop_back();
+      }
+    }
   }
 
   std::cout << "Recursive solve algorithm done\n";

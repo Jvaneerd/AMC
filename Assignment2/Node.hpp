@@ -22,8 +22,8 @@ public:
   inline int getPriority() { return priority; }
   inline int getId() { return id; }
   inline bool IsEven() { return isEven; }
-  inline std::vector<unsigned> getSuccessors() { return successors; }
-  inline std::vector<unsigned> getPredecessors() { return predecessors; }
+  inline std::vector<unsigned> &getSuccessors() { return this->successors; }
+  inline std::vector<unsigned> &getPredecessors() { return this->predecessors; }
   inline void addSuccessor(unsigned suc) { successors.emplace_back(suc); }
   inline void addPredecessor(unsigned pre) { predecessors.emplace_back(pre); }
   std::string toString();
