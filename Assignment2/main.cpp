@@ -23,6 +23,9 @@ int main(int argc, char *argv[]) {
   sv.SolvePG(); // Blocking until PG has been solved
   std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult(false) << std::endl;
 
+  PGSolver svRand(pg);
+  svRand.SolveRandom();
+  std::cout << "Parity game solved randomly in " << svRand.GetNumberOfLifts() << " lifts, results:\n" << svRand.GetPGResult(false) << std::endl;
   
   PGSolver svSmartQueue(pg);
   svSmartQueue.SolvePGWithSmartQueue(); // Blocking until PG has been solved

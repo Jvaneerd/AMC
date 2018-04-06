@@ -19,6 +19,7 @@ public:
   PGSolver(ParityGame &pg);
   std::vector<Measure> measures;
   void SolvePG();
+  void SolveRandom();
   //void SolveNode(unsigned id);
   bool SolveCycle(unsigned loc);
   void SolveRecursive();

@@ -2,6 +2,8 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
+#include <ctime>
+#include <cstdlib>
 #include <set>
 #include <stack>
 #include "Solver.hpp"
@@ -72,6 +74,27 @@ void PGSolver::SolvePG() {
 	  }
   }
   
+  this->isSolved = true;
+}
+
+void PGSolver::SolveRandom() {
+  auto solvedNodes = 0;
+  std::srand(std::time(NULL));
+  std::vector<bool> solves(nodes.size(), false);
+  
+  while(solvedNodes != nodes.size()) {
+    auto randId = std::rand() % nodes.size();
+    if(!solves[randId]) {
+      solves[randId] = measures[randId].isTop() || Lift(randId);
+      if(solves[randId]) {
+	solvedNodes++;
+      } else {
+	std::fill(solves.begin(), solves.end(), false);
+	solvedNodes = 0;
+      }
+    }
+  }
+
   this->isSolved = true;
 }
 
