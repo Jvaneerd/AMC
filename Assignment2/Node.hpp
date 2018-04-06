@@ -19,9 +19,9 @@ public:
 
   Node &operator=(const Node &other) = default;
   
-  inline int getPriority() { return priority; }
-  inline int getId() { return id; }
-  inline bool IsEven() { return isEven; }
+  inline int getPriority() const { return priority; }
+  inline int getId() const { return id; }
+  inline bool IsEven() const { return isEven; }
   inline std::vector<unsigned> &getSuccessors() { return this->successors; }
   inline std::vector<unsigned> &getPredecessors() { return this->predecessors; }
   inline void addSuccessor(unsigned suc) { successors.emplace_back(suc); }
