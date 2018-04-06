@@ -52,7 +52,7 @@ bool PGSolver::Lift(unsigned v) {
     }
   }
   if(measures[v] != liftMeasure) { //the result of all the progs is different, update v in progressMeasures
-    measures[v] = liftMeasure;
+    measures[v] = std::move(liftMeasure);
     return false; //Something's changed
   }
 

@@ -1,8 +1,8 @@
 CXX=g++
 #CXX=clang++
 RM=rm -f
-CPPFLAGS=-std=c++17 -g -O3
-LDFLAGS=-g
+CPPFLAGS=-std=c++11 -O3
+LDFLAGS=
 LDLIBS=
 
 SRCS=main.cpp Node.cpp ParityGame.cpp Measure.cpp Solver.cpp
