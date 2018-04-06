@@ -49,19 +49,8 @@ namespace PGParser {
 	token = strtok(NULL, succDelim);
       }
       nodes[id] = node;
-/*      auto it = std::find_if(nodes.begin(), nodes.end(), [&](auto &elem){ return elem.getId() == id; });
-      if(it != nodes.end()) {
-	replaced = true;
-	*it = node;
-	} else nodes.emplace_back(std::move(node));*/
       delete(dup);
     }
-
-    // if(replaced) {
-    //   std::cout << "Sorting...\n";
-    //   std::sort(nodes.begin(), nodes.end(), [](auto &n1, auto &n2){ return n1.getId() < n2.getId(); });
-    //   std::cout << "Sorting done\n";
-    // }
 
     //Set predecessors
     for(auto &it : nodes) 
