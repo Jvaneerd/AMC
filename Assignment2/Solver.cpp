@@ -3,6 +3,7 @@
 #include <iterator>
 #include <algorithm>
 #include <set>
+#include <stack>
 #include "Solver.hpp"
 
 Measure PGSolver::findMaxMeasure(ParityGame &pg) {
@@ -149,14 +150,61 @@ For example: dining_5.invariantly_inevitably_eat.gm
 */
 void PGSolver::SolveRecursive() {
   std::cout << "Starting recursive solve algorithm\n";
-  for (auto &it : this->nodes) {
-    if(!measures[it.getId()].isTop()) SolveNode(it.getId());
+  std::stack<unsigned> stack;
+
+  // Push all nodes on the stack
+  for (auto &it : this->nodes)  stack.push(it.getId());
+
+  while (!stack.empty()) {
+	  // Pop top node
+	  auto id = stack.top();
+	  stack.pop();
+	  
+	  // Decrease number of preds
+	  if (!parents.empty()) {
+		  unsigned last = numberOfPreds.back();
+		  numberOfPreds.pop_back();
+		  numberOfPreds.emplace_back(last - 1);
+	  }
+
+	  auto preds = 0;
+	  if (!measures[id].isTop()) {
+		  // Check for cycles
+		  bool startChanged = false;
+		  unsigned startIndex = std::distance(parents.begin(), std::find(parents.begin(), parents.end(), id));
+		  if (startIndex < parents.size()) {
+			  startChanged = SolveCycle(startIndex);
+		  }
+
+		  // Try to lift
+		  if (startChanged || !Lift(id)) {
+			  // Add predecessors to stack if lift was successful
+			  for (auto &it : nodes[id].getPredecessors()) {
+				  stack.push(it);
+				  preds++;
+			  }
+		  }
+	  }
+	  // If predecessors where added to stack, update parents and predecessor count lists
+	  if (preds > 0) {
+		  parents.emplace_back(id);
+		  numberOfPreds.emplace_back(preds);
+	  }
+	  // If no predecessors where added, remove all parents of which all predecessors are handled
+	  else {
+		  while (!parents.empty() && numberOfPreds.back() == 0) {
+			  numberOfPreds.pop_back();
+			  parents.pop_back();
+		  }
+	  }
   }
+
   std::cout << "Recursive solve algorithm done\n";
   this->isSolved = true;
 }
 
 bool PGSolver::SolveCycle(unsigned startIndex) {
+	//std::cout << "Solve cycle" << std::endl;
   bool startChanged = !Lift(parents[startIndex]);
   bool allChanged = startChanged;
   for (int i = startIndex + 1; i < parents.size(); i++) allChanged &= !Lift(parents[i]);
@@ -168,9 +216,10 @@ bool PGSolver::SolveCycle(unsigned startIndex) {
   return startChanged;
 }
 
+/*
 void PGSolver::SolveNode(unsigned id) {
   bool startChanged = false;
-
+  std::cout << "nesting depth: " << parents.size() << std::endl;
   unsigned startIndex = std::distance(parents.begin(), std::find(parents.begin(), parents.end(), id));
   if (startIndex < parents.size()) {
     startChanged = SolveCycle(startIndex);
@@ -182,7 +231,7 @@ void PGSolver::SolveNode(unsigned id) {
     }
   }
   parents.pop_back();
-}
+}*/
 
 unsigned PGSolver::GetNumberOfLifts()
 {

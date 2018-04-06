@@ -8,6 +8,7 @@ private:
   const Measure max;
   std::vector<Node> nodes;
   std::vector<unsigned> parents;
+  std::vector<unsigned> numberOfPreds;
 
   Measure progMeasure;
   Measure liftMeasure;
@@ -18,7 +19,7 @@ public:
   PGSolver(ParityGame &pg);
   std::vector<Measure> measures;
   void SolvePG();
-  void SolveNode(unsigned id);
+  //void SolveNode(unsigned id);
   bool SolveCycle(unsigned loc);
   void SolveRecursive();
   void SolvePGWithSmartQueue();
