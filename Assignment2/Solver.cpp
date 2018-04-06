@@ -204,11 +204,18 @@ void PGSolver::SolveRecursive() {
 }
 
 bool PGSolver::SolveCycle(unsigned startIndex) {
-	//std::cout << "Solve cycle" << std::endl;
   bool startChanged = !Lift(parents[startIndex]);
   bool allChanged = startChanged;
-  for (int i = startIndex + 1; i < parents.size(); i++) allChanged &= !Lift(parents[i]);
-  
+  auto i = startIndex;
+  auto round = 0;
+  while (allChanged && i < parents.size() && round < 2) {
+	  allChanged &= !Lift(parents[i]);
+	  i++;
+	  if (i == parents.size()) {
+		  round++;
+		  i = startIndex;
+	  }
+  }
   // If the measure of all nodes in the cycle changed, it will eventually be lifted to top, hence make everything in cycle TOP
   if (allChanged) {
     for (int i = startIndex; i < parents.size(); i++) measures[parents[i]].makeTop();
