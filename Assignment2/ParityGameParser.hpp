@@ -18,8 +18,7 @@ namespace PGParser {
     infile >> nrOfNodesString;
     auto maxNodeId = std::stoi(nrOfNodesString.substr(0, nrOfNodesString.length()-1));
 
-    std::vector<Node> nodes;
-    nodes.reserve(maxNodeId + 1);
+    std::vector<Node> nodes(maxNodeId + 1);
 
     std::string line;
     auto lineDelim = " ;";
@@ -27,6 +26,7 @@ namespace PGParser {
     char * token;
 
     std::getline(infile, line); //Finalize reading first line, ugly but works
+    bool replaced = false;
     // Parse nodes
     while (std::getline(infile, line)) //infile >> id >> priority >> owner >> successors >> name)
     {
@@ -48,14 +48,20 @@ namespace PGParser {
 	node.addSuccessor(dest);
 	token = strtok(NULL, succDelim);
       }
-      auto it = std::find_if(nodes.begin(), nodes.end(), [&](auto &elem){ return elem.getId() == id; });
+      nodes[id] = node;
+/*      auto it = std::find_if(nodes.begin(), nodes.end(), [&](auto &elem){ return elem.getId() == id; });
       if(it != nodes.end()) {
+	replaced = true;
 	*it = node;
-      } else nodes.emplace_back(std::move(node));
+	} else nodes.emplace_back(std::move(node));*/
       delete(dup);
     }
 
-    std::sort(nodes.begin(), nodes.end(), [](auto &n1, auto &n2){ return n1.getId() < n2.getId(); });
+    // if(replaced) {
+    //   std::cout << "Sorting...\n";
+    //   std::sort(nodes.begin(), nodes.end(), [](auto &n1, auto &n2){ return n1.getId() < n2.getId(); });
+    //   std::cout << "Sorting done\n";
+    // }
 
     //Set predecessors
     for(auto &it : nodes) 

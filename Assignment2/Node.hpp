@@ -14,15 +14,10 @@ private:
 public:
   Node(Node &&N) = default;
   Node(const Node &N) = default;
+  Node() = default;
   Node(int id, int priority, bool isEven, std::string name);
 
-  Node &operator=(const Node &other) = default; /*{
-    this->id = other.id;
-    this->isEven = other.isEven;
-    this->name = other.name;
-    this->successors = other.successors;
-    this->predecessors = other.predecessors;
-    }*/
+  Node &operator=(const Node &other) = default;
   
   inline int getPriority() { return priority; }
   inline int getId() { return id; }
@@ -36,4 +31,3 @@ public:
   bool operator<(const Node &other) const;
   bool operator>(const Node &other) const;
 };
-

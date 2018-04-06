@@ -7,6 +7,7 @@ private:
   unsigned numberOfLifts;
   const Measure max;
   std::vector<Node> nodes;
+  std::vector<unsigned> parents;
 
   Measure progMeasure;
   Measure liftMeasure;

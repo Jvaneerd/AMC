@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
   auto pg = PGParser::pgParse(infile);
 
   
-  PGSolver sv(pg);
-  sv.SolvePG(); // Blocking until PG has been solved
-  std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult() << std::endl;
+//  PGSolver sv(pg);
+//  sv.SolvePG(); // Blocking until PG has been solved
+//  std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult() << std::endl;
 
   /*
   PGSolver svSmartQueue(pg);
@@ -37,20 +37,20 @@ int main(int argc, char *argv[]) {
   std::cout << "Parity game solved recursive in " << svRecursive.GetNumberOfLifts() << " lifts, results:\n" << svRecursive.GetPGResult() << std::endl;
 
   
-  bool equalResults = true;
+  /*bool equalResults = true;
   for (auto &it : pg.getNodes()) {
-	  if (sv.measures[it.getId()] != svRecursive.measures[it.getId()]) {
-		  equalResults = false;
-		  break;
-	  }
+    if (sv.measures[it.getId()] != svRecursive.measures[it.getId()]) {
+      equalResults = false;
+      break;
+    }
   }
 
   if (equalResults) {
-	  std::cout << "Recursive algorithm results EQUAL to naive algorithm results";
+    std::cout << "Recursive algorithm results EQUAL to naive algorithm results\n";
   }
   else {
-	  std::cout << "Recursive algorithm results DIFFERENT from naive algorithm results";
-  }
+    std::cout << "Recursive algorithm results DIFFERENT from naive algorithm results\n";
+    }*/
   
   return 0;
 }
