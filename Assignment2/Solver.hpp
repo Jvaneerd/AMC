@@ -25,5 +25,5 @@ public:
   void SolvePGWithSmartQueue();
   void SolvePGWithSelfLoops();
   unsigned GetNumberOfLifts();
-  std::string GetPGResult();
+  std::string GetPGResult(bool all);
 };

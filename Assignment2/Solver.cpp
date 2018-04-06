@@ -61,17 +61,15 @@ bool PGSolver::Lift(unsigned v) {
 
 void PGSolver::SolvePG() {
   std::cout << "Max measure: " << max.toString() << std::endl;
-  std::vector<bool> nodeFullyLifted(nodes.size(), false);
-  
-  while (std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false)) {
-    // std::cout << "Iteration " << i++ << std::endl;
-    // std::cout << "count: " << std::count(nodeFullyLifted.begin(), nodeFullyLifted.end(), false) << std::endl;
-    for (auto it : nodeFullyLifted) it = false; //TODO: implement predecessors of node to more easily update. -> new strategy
-    
-    for (auto &it : this->nodes) {
-      auto id = it.getId();
-      nodeFullyLifted[id] = measures[id].isTop() || Lift(id);
-    }
+
+  bool stable = false;
+
+  while (!stable) {
+	  stable = true;
+	  for (auto &it : this->nodes) {
+		  auto id = it.getId();
+		  stable &= measures[id].isTop() || Lift(id);
+	  }
   }
   
   this->isSolved = true;
@@ -245,21 +243,21 @@ unsigned PGSolver::GetNumberOfLifts()
   return numberOfLifts;
 }
 
-std::string PGSolver::GetPGResult() {
+std::string PGSolver::GetPGResult(bool all) {
   if(!this->isSolved) return "PG not solved yet...\n";
   else {
     //    std::vector<int> even;
     //    std::vector<int> odd;
     std::ostringstream ss;
     
-    /*
-      for (auto &it : this->nodes) {
-      ss << it.toString() << " was won by player: ";
-      if (measures[it.getId()].isTop()) ss << ">ODD<";
-      else ss << ">EVEN<";
-      ss << std::endl;
-      }
-    */
+	if (all) {
+		for (auto &it : this->nodes) {
+			ss << it.toString() << " was won by player: ";
+			if (measures[it.getId()].isTop()) ss << ">ODD<";
+			else ss << ">EVEN<";
+			ss << std::endl;
+		}
+	}
     
     ss << nodes[0].toString() << " was won by player: ";
     if (measures[0].isTop()) ss << ">ODD<";
