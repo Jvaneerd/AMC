@@ -133,7 +133,7 @@ void PGSolver::SolvePGQueue() {
   while (!queue.empty()) {
     auto id = *queue.begin();
     queue.erase(id);
-    
+
     if (!measures[id].isTop() && !Lift(id)) {
       for (auto &it : nodes[id].getPredecessors()) {
 	if (!measures[it].isTop()) queue.insert(it);
@@ -154,7 +154,7 @@ void PGSolver::SolvePGCycles() {
     // Pop top node
     auto id = stack.top();
     stack.pop();
-    
+
     // Decrease number of preds
     if (!parents.empty()) {
       unsigned last = numberOfPreds.back();
@@ -198,7 +198,7 @@ void PGSolver::SolvePGCycles() {
 bool PGSolver::SolveCycle(unsigned startIndex) {
   bool startChanged = !Lift(parents[startIndex]);
   bool allChanged = startChanged;
-  auto i = startIndex;
+  auto i = startIndex + 1;
   auto round = 0;
   while (allChanged && i < parents.size() && round < 2) {
     allChanged &= !Lift(parents[i]);
@@ -221,24 +221,25 @@ unsigned PGSolver::GetNumberOfLifts()
 }
 
 std::string PGSolver::GetPGResult(bool all) {
-  if(!this->isSolved) return "PG not solved yet...\n";
-  else {
-    std::ostringstream ss;
-    
-    if (all) {
-      for (auto &it : this->nodes) {
-	ss << it.toString() << " was won by player: ";
-	if (measures[it.getId()].isTop()) ss << ">ODD<";
-	else ss << ">EVEN<";
-	ss << std::endl;
-      }
-    } else {    
-      ss << nodes[0].toString() << " was won by player: ";
-      if (measures[0].isTop()) ss << ">ODD<";
-      else ss << ">EVEN<";
-      ss << std::endl;
-    }
-    return ss.str();
-  }
+	if (!this->isSolved) return "PG not solved yet...\n";
+	else {
+		std::ostringstream ss;
+
+		if (all) {
+			for (auto &it : this->nodes) {
+				ss << it.toString() << " was won by player: ";
+				if (measures[it.getId()].isTop()) ss << ">ODD<";
+				else ss << ">EVEN<";
+				ss << std::endl;
+			}
+		}
+		else {
+			ss << nodes[0].toString() << " was won by player: ";
+			if (measures[0].isTop()) ss << ">ODD<";
+			else ss << ">EVEN<";
+			ss << std::endl;
+		}
+		return ss.str();
+	}
 
 }
