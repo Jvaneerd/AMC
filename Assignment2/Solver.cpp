@@ -64,7 +64,7 @@ bool PGSolver::Lift(unsigned v) {
 
 void PGSolver::InitRandomOrder() {
   std::srand(std::time(NULL));
-  for (auto it : nodes) {
+  for (auto &it : nodes) {
     randomOrder.push_back(std::rand());
   }
 }
