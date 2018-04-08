@@ -22,12 +22,10 @@ public:
   inline int getPriority() const { return priority; }
   inline int getId() const { return id; }
   inline bool IsEven() const { return isEven; }
-  inline std::vector<unsigned> &getSuccessors() { return this->successors; }
-  inline std::vector<unsigned> &getPredecessors() { return this->predecessors; }
+  inline std::vector<unsigned> getSuccessors() const { return successors; }
+  inline std::vector<unsigned> getPredecessors() const { return predecessors; }
+  inline int getNrPredec() const { return predecessors.size(); }
   inline void addSuccessor(unsigned suc) { successors.emplace_back(suc); }
   inline void addPredecessor(unsigned pre) { predecessors.emplace_back(pre); }
   std::string toString();
-
-  bool operator<(const Node &other) const;
-  bool operator>(const Node &other) const;
 };

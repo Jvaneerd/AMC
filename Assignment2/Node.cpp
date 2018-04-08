@@ -11,17 +11,3 @@ std::string Node::toString() {
   for (auto &it : predecessors) s += std::to_string(it) + ", ";
   return s;
 }
-
-bool Node::operator<(const Node &other) const {
-	if (this->priority % 2 != other.priority % 2) return this->priority % 2;
-	if (this->isEven != other.isEven) return !this->isEven;
-	if (this->priority != other.priority) return this->priority < other.priority;
-	return this->id < other.id;
-}
-
-bool Node::operator>(const Node &other) const {
-	if (this->priority % 2 != other.priority % 2) return !this->priority % 2;
-	if (this->isEven != other.isEven) return this->isEven;
-	if (this->priority != other.priority) return this->priority > other.priority;
-	return this->id > other.id;
-}

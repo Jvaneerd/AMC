@@ -63,83 +63,83 @@ bool PGSolver::Lift(unsigned v) {
 
 
 void PGSolver::InitRandomOrder() {
-	std::srand(std::time(NULL));
-	for (auto it : nodes) {
-		randomOrder.push_back(std::rand());
-	}
+  std::srand(std::time(NULL));
+  for (auto it : nodes) {
+    randomOrder.push_back(std::rand());
+  }
 }
 
 void PGSolver::SolvePG(std::string strategy, std::string order) {
-	std::cout << "Max measure: " << max.toString() << std::endl;
-	std::cout << "Strategy: " << strategy << " Order: " << order << std::endl;
-
-	if(strategy == "-s2"){
-		std::cout << "Solving parity game using queue strategy." << std::endl;
-		if (order == "-o2") {
-			InitRandomOrder();
-			SolvePGQueue<RandomCompare>();
-		}else if (order == "-o3") {
-			SolvePGQueue<SmartCompare>();
-		}
-		else {
-			SolvePGQueue<InputCompare>();
-		}
-	}
-	else if (strategy == "-s3") {
-		std::cout << "Solving parity game using cycle strategy." << std::endl;
-		SolvePGCycles();
-	}
-	else {
-		std::cout << "Solving parity game using iterative strategy." << std::endl;
-		if (order == "-o2") {
-			InitRandomOrder();
-			SolvePGIterative<RandomCompare>();
-		}
-		else if (order == "-o3") {
-			SolvePGIterative<SmartCompare>();
-		}
-		else {
-			SolvePGIterative<InputCompare>();
-		}
-	}
-	this->isSolved = true;
+  std::cout << "Max measure: " << max.toString() << std::endl;
+  std::cout << "Strategy: " << strategy << " Order: " << order << std::endl;
+  
+  if(strategy == "-s2"){
+    std::cout << "Solving parity game using queue strategy." << std::endl;
+    if (order == "-o2") {
+      InitRandomOrder();
+      SolvePGQueue<RandomCompare>();
+    } else if (order == "-o3") {
+      SolvePGQueue<SmartCompare>();
+    }
+    else {
+      SolvePGQueue<InputCompare>();
+    }
+  }
+  else if (strategy == "-s3") {
+    std::cout << "Solving parity game using cycle strategy." << std::endl;
+    SolvePGCycles();
+  }
+  else {
+    std::cout << "Solving parity game using iterative strategy." << std::endl;
+    if (order == "-o2") {
+      InitRandomOrder();
+      SolvePGIterative<RandomCompare>();
+    }
+    else if (order == "-o3") {
+      SolvePGIterative<SmartCompare>();
+    }
+    else {
+      SolvePGIterative<InputCompare>();
+    }
+  }
+  this->isSolved = true;
 }
 
 // Iterative strategy
 template <typename Comparator>
 void PGSolver::SolvePGIterative() {
-	bool stable = false;
-
-	std::vector<unsigned> queue;
-	for (auto it : nodes) queue.push_back(it.getId());
-	std::sort(queue.begin(), queue.end(), Comparator(*this));
-
-	while (!stable) {
-		stable = true;
-		for (auto &it : queue) {
-			stable &= measures[it].isTop() || Lift(it);
-		}
-	}
+  bool stable = false;
+  
+  std::vector<unsigned> queue;
+  for (auto it : nodes) queue.push_back(it.getId());
+  std::sort(queue.begin(), queue.end(), Comparator(*this));
+  
+  while (!stable) {
+    stable = true;
+    for (auto &it : queue) {
+      stable &= measures[it].isTop() || Lift(it);
+    }
+  }
 }
 
 
 // Queue strategy
 template <typename Comparator>
 void PGSolver::SolvePGQueue() {
-	std::set<unsigned, Comparator> queue(Comparator(*this));
-
-	for (auto &it : this->nodes) queue.insert(it.getId());
-
-	while (!queue.empty()) {
-		auto id = *queue.begin();
-		queue.erase(id);
-
-		if (!measures[id].isTop() && !Lift(id)) {
-			for (auto &it : nodes[id].getPredecessors()) {
-				if (!measures[it].isTop()) queue.insert(it);
-			}
-		}
-	}
+  std::set<unsigned, Comparator> queue(Comparator(*this));
+  
+  for (auto &it : this->nodes) queue.insert(it.getId());
+  
+  while (!queue.empty()) {
+    auto id = *queue.begin();
+    queue.erase(id);
+    
+    if (!measures[id].isTop() && !Lift(id)) {
+      for (auto &it : nodes[id].getPredecessors()) {
+	if (!measures[it].isTop()) queue.insert(it);
+      }
+    }
+  }
 }
 
 
@@ -201,12 +201,12 @@ bool PGSolver::SolveCycle(unsigned startIndex) {
   auto i = startIndex;
   auto round = 0;
   while (allChanged && i < parents.size() && round < 2) {
-	  allChanged &= !Lift(parents[i]);
-	  i++;
-	  if (i == parents.size()) {
-		  round++;
-		  i = startIndex;
-	  }
+    allChanged &= !Lift(parents[i]);
+    i++;
+    if (i == parents.size()) {
+      round++;
+      i = startIndex;
+    }
   }
   // If the measure of all nodes in the cycle changed, it will eventually be lifted to top, hence make everything in cycle TOP
   if (allChanged) {
@@ -223,40 +223,21 @@ unsigned PGSolver::GetNumberOfLifts()
 std::string PGSolver::GetPGResult(bool all) {
   if(!this->isSolved) return "PG not solved yet...\n";
   else {
-    //    std::vector<int> even;
-    //    std::vector<int> odd;
     std::ostringstream ss;
     
-	if (all) {
-		for (auto &it : this->nodes) {
-			ss << it.toString() << " was won by player: ";
-			if (measures[it.getId()].isTop()) ss << ">ODD<";
-			else ss << ">EVEN<";
-			ss << std::endl;
-		}
-	}
-    
-    ss << nodes[0].toString() << " was won by player: ";
-    if (measures[0].isTop()) ss << ">ODD<";
-    else ss << ">EVEN<";
-    ss << std::endl;
-    
-    // for(auto &it : this->nodes) {
-    //   if(measures[it.getId()].isTop()) odd.emplace_back(it.getId());
-    //   else even.emplace_back(it.getId());
-    // }
-    // ss << "Nodes won by player even:\n";
-    // if(even.size() > 0) {
-    //   std::sort(even.begin(), even.end());
-    //   std::copy(even.begin(), even.end() - 1, std::ostream_iterator<int>(ss, ", "));
-    //   ss << even.back();
-    // }
-    // ss << "\nNodes won by player odd:\n";
-    // if(odd.size() > 0) {
-    //   std::sort(odd.begin(), odd.end());
-    //   std::copy(odd.begin(), odd.end() - 1, std::ostream_iterator<int>(ss, ", "));
-    //   ss << odd.back();
-    // }
+    if (all) {
+      for (auto &it : this->nodes) {
+	ss << it.toString() << " was won by player: ";
+	if (measures[it.getId()].isTop()) ss << ">ODD<";
+	else ss << ">EVEN<";
+	ss << std::endl;
+      }
+    } else {    
+      ss << nodes[0].toString() << " was won by player: ";
+      if (measures[0].isTop()) ss << ">ODD<";
+      else ss << ">EVEN<";
+      ss << std::endl;
+    }
     return ss.str();
   }
 
