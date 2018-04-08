@@ -19,14 +19,19 @@ int main(int argc, char *argv[]) {
 	}
 	std::string strategy = "-s1";
 	std::string order = "-o1";
+	bool allResults = false;
 	if (argc >= 3) { strategy = argv[2]; }
-	if (argc == 4) { order = argv[3]; }
+	if (argc >= 4) {
+		if (!std::strcmp(argv[3], "-a")) { allResults = true; }
+		else { order = argv[3]; }
+	}
+	if (argc >= 5 && !std::strcmp(argv[4],"-a")) {  allResults = true; }
 
 	auto pg = PGParser::pgParse(infile);
 
 	PGSolver sv(pg);
 	sv.SolvePG(strategy, order); // Blocking until PG has been solved
-	std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult(false) << std::endl;
+	std::cout << "Parity game solved in " << sv.GetNumberOfLifts() << " lifts, results:\n" << sv.GetPGResult(allResults) << std::endl;
 
 	/*
 	PGSolver svRand(pg);
